@@ -21,7 +21,7 @@ return [
         'website'       => 'www.shopwithzyra.in',
         'instagram'     => '@zyraofficial46',
         'gstin'         => '33ABCDE1234F1Z5',
-        'sales_exec'    => 'Priya R',
+        'sales_exec'    => 'Anitha Rajesh',
         'store_location'=> 'ZYRA Lifestyle – Chennai',
     ],
 

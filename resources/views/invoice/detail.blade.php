@@ -234,14 +234,16 @@
         <div class="d-flex gap-2">
             @if (isset($savedOrder))
                 <a href="{{ route('view_order_invoice', $savedOrder->order_id) }}" class="btn btn-danger" style="background:#c25b6c;border-color:#c25b6c;font-weight:700;">
-                    <i class="bi bi-receipt-cutoff me-1"></i> View Official Bill Copy
+                    <i class="bi bi-receipt-cutoff me-1"></i> View Official Invoice
                 </a>
             @endif
             <button type="button" class="btn btn-outline-accent" onclick="window.print()"><i class="bi bi-printer me-1"></i> Print Quick Invoice</button>
         </div>
     </div>
 
-    <form method="POST" action="{{ route('invoice_store') }}" id="invoiceForm">
+        <form method="POST" action="{{ route('invoice_store') }}" id="invoiceForm"
+            data-unit-price="{{ (float) ($product->selling_price ?? 0) }}"
+            data-max-stock="{{ max((int) $product->stock, 1) }}">
         @csrf
         <input type="hidden" name="product_id" value="{{ $product->id }}">
 
@@ -390,8 +392,9 @@
 
 @push('scripts')
     <script>
-        const UNIT_PRICE = {{ (float) ($product->selling_price ?? 0) }};
-        const MAX_STOCK = {{ max((int) $product->stock, 1) }};
+        const invoiceForm = document.getElementById('invoiceForm');
+        const UNIT_PRICE = Number(invoiceForm.dataset.unitPrice);
+        const MAX_STOCK = Number(invoiceForm.dataset.maxStock);
         const qtyInput = document.getElementById('quantityInput');
 
         // Quantity stepper

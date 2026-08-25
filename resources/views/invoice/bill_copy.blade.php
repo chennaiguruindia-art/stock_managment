@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
-@section('page-title', 'Bill Copy - Invoice ' . ($order->order_id ?? ''))
-@section('page-subtitle', 'Official bill copy with customer details, item breakdown, and price summary.')
+@section('page-title', 'Invoice - ' . ($order->order_id ?? ''))
+@section('page-subtitle', 'Official Invoice with customer details, item breakdown, and price summary.')
 
 @section('content')
     <style>
@@ -389,7 +389,7 @@
             <i class="bi bi-arrow-left me-1"></i> Back to Invoices
         </a>
         <button type="button" class="btn btn-danger btn-sm fw-bold px-3" onclick="window.print()" style="background:#c25b6c;border-color:#c25b6c;">
-            <i class="bi bi-printer me-1"></i> Print Bill Copy
+            <i class="bi bi-printer me-1"></i> Print Invoice
         </button>
     </div>
 
@@ -475,16 +475,16 @@
                 <img src="{{ asset('logo/zyralogo.png') }}" alt="ZYRA Lifestyle Logo" style="max-width:240px;max-height:110px;object-fit:contain;display:block;margin:0 auto 0.4rem;">
             </div>
 
-            <!-- Bill Copy Badge & Meta -->
+            <!-- Invoice Badge & Meta -->
             <div class="bill-badge-wrapper">
-                <div class="bill-badge-title">BILL COPY</div>
+                <div class="bill-badge-title">Invoice</div>
                 <table class="bill-meta-table">
                     <tr>
-                        <td class="lbl">Invoice No.</td>
+                        <td class="lbl">Bill No.</td>
                         <td>: <b>{{ $formattedInvoiceNo }}</b></td>
                     </tr>
                     <tr>
-                        <td class="lbl">Invoice Date</td>
+                        <td class="lbl">Bill Date</td>
                         <td>: {{ $orderDate }}</td>
                     </tr>
                     <tr>
@@ -497,7 +497,7 @@
                     </tr>
                     <tr>
                         <td class="lbl">Sales Executive</td>
-                        <td>: {{ $company['sales_exec'] ?? 'Priya R' }}</td>
+                        <td>: {{ $company['sales_exec'] ?? 'Anitha Rajesh' }}</td>
                     </tr>
                     <tr>
                         <td class="lbl">Store</td>
@@ -518,7 +518,6 @@
             <div class="cust-card">
                 <div class="cust-card-title">SHIP TO</div>
                 <div class="cust-name">{{ $custName }}</div>
-                <div class="cust-address">{{ $custAddress }}</div>
                 <div class="cust-phone">Phone : {{ $custPhone }}</div>
             </div>
         </div>

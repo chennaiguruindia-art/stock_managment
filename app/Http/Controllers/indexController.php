@@ -70,13 +70,23 @@ class indexController extends Controller
         }));
 
         if ($invoice !== '') {
-            $matched = $orders->filter(function ($o) use ($invoice) {
-                if (Str::lower($o->order_id) === Str::lower($invoice)) {
+            $invClean = Str::lower($invoice);
+            $invDigits = preg_replace('/\D/', '', $invoice);
+
+            $matched = $orders->filter(function ($o) use ($invClean, $invDigits) {
+                $orderClean = Str::lower($o->order_id);
+                $orderDigits = preg_replace('/\D/', '', $o->order_id);
+
+                if ($orderClean === $invClean) {
                     return true;
                 }
-                $numeric = (int) $invoice;
-                if ($numeric > 0 && (int) substr($o->order_id, 4) === $numeric) {
+                if (str_contains($orderClean, $invClean) || str_contains($invClean, $orderClean)) {
                     return true;
+                }
+                if ($invDigits !== '' && (int) $invDigits > 0) {
+                    if ((int) $orderDigits === (int) $invDigits) {
+                        return true;
+                    }
                 }
                 return false;
             });
@@ -114,7 +124,9 @@ class indexController extends Controller
             $lastOrder = Order::with('items')->find(session('last_order_id'));
         }
 
-        return view('Selling.pos', compact('products', 'lastOrder'));
+        $nextOrderId = Order::nextOrderId();
+
+        return view('Selling.pos', compact('products', 'lastOrder', 'nextOrderId'));
     }
 
     public function invoices()

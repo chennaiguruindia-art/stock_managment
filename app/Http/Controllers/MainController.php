@@ -380,10 +380,13 @@ class MainController extends Controller
         $seq = $lastOrderId ? (int) substr($lastOrderId, 4) + 1 : 1;
         $orderId = 'ORD-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
 
+        $paymentMode = trim($request->input('payment_mode') ?? '') ?: 'Online UPI';
+
         $order = Order::create([
             'order_id' => $orderId,
             'customer_name' => $customerName ?: null,
             'customer_mobile' => $customerMobile ?: null,
+            'payment_mode' => $paymentMode,
             'total' => round($total, 2),
         ]);
 
