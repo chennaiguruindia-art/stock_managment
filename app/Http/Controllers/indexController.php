@@ -50,6 +50,33 @@ class indexController extends Controller
         return view('stock.stock_maintanace', compact('products', 'totalProducts', 'totalStock', 'lowStock', 'outOfStock', 'healthyStock'));
     }
 
+    public function export_stock_excel()
+    {
+        $products = Addproduct::orderBy('brand')->orderBy('product_name')->get();
+
+        return response()
+            ->view('exports.stock_excel', compact('products'))
+            ->header('Content-Type', 'application/vnd.ms-excel')
+            ->header('Content-Disposition', 'attachment; filename="stock-report-' . date('Ymd-His') . '.xls"');
+    }
+
+    public function export_stock_pdf()
+    {
+        $products = Addproduct::orderBy('brand')->orderBy('product_name')->get();
+
+        $totalStock = (int) $products->sum('stock');
+        $lowStock = $products->filter(fn ($p) => $p->stock > 0 && $p->stock < 5)->count();
+        $outOfStock = $products->filter(fn ($p) => $p->stock <= 0)->count();
+        $company = config('invoice.company');
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView(
+            'exports.stock_pdf',
+            compact('products', 'totalStock', 'lowStock', 'outOfStock', 'company')
+        )->setPaper('a4', 'landscape');
+
+        return $pdf->download('stock-report-' . date('Ymd-His') . '.pdf');
+    }
+
     public function return_product(Request $request)
     {
         $invoice = trim($request->input('invoice') ?? '');

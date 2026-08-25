@@ -119,12 +119,17 @@
                 <button class="filter-chip" data-filter="low">Low</button>
                 <button class="filter-chip" data-filter="out">Out of stock</button>
             </div>
+            <div class="ms-auto d-flex gap-2">
+                <a href="{{ route('stock_export_excel') }}" class="btn btn-sm btn-outline-accent"><i class="bi bi-file-earmark-excel me-1"></i>Excel</a>
+                <a href="{{ route('stock_export_pdf') }}" class="btn btn-sm btn-outline-accent"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</a>
+            </div>
         </div>
 
         <div class="table-responsive">
             <table class="table align-middle" id="stockTable">
                 <thead>
                     <tr>
+                        <th>ID</th>
                         <th>Product</th>
                         <th>SKU</th>
                         <th>Barcode</th>
@@ -141,7 +146,8 @@
                             $label = $status === 'out' ? 'Out of stock' : ($status === 'low' ? 'Low' : 'Healthy');
                         @endphp
                         <tr data-status="{{ $status }}"
-                            data-search="{{ strtolower($product->product_name . ' ' . $product->brand . ' ' . $product->sku . ' ' . $product->barcode) }}">
+                            data-search="{{ strtolower($product->product_id . ' ' . $product->product_name . ' ' . $product->brand . ' ' . $product->sku . ' ' . $product->barcode) }}">
+                            <td><span class="chip-sku">{{ $product->product_id ?: '-' }}</span></td>
                             <td>
                                 <div class="fw-semibold">{{ $product->product_name }}</div>
                                 <div class="text-muted" style="font-size:.78rem;">{{ $product->brand }} &middot; {{ $product->product_type }}</div>
@@ -165,7 +171,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
+                            <td colspan="7" class="text-center text-muted py-4">
                                 No products yet. <a href="{{ route('add_product') }}">Add your first product</a>.
                             </td>
                         </tr>

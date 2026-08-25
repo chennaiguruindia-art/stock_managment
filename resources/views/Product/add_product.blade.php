@@ -228,7 +228,7 @@
                                 <label class="form-label"><i class="bi bi-tags"></i> Product type</label>
                                 <select class="form-select" name="product_type">
                                     <option value="" {{ old('product_type') === '' ? 'selected' : '' }}>Choose type</option>
-                                    @foreach (['Top', 'Pant', 'Kurthi', 'Churidar', 'Gown', 'Saree', 'Dress', 'Lehenga'] as $type)
+                                    @foreach (['1 Piece set (Top)', '2 Pcs set (kurthi &shawl)', '2 Pcs set (kurthi &Pant)', '3 Pcs Set', 'Anarkali', 'Anarkali with shawl', 'Short Kurthi ', 'Saree', 'Lehenga','Night Wear','Kids Wear','Lingerie','Bralette'] as $type)
                                         <option {{ old('product_type') === $type ? 'selected' : '' }}>{{ $type }}</option>
                                     @endforeach
                                 </select>
@@ -241,7 +241,7 @@
                                 <label class="form-label"><i class="bi bi-rulers"></i> Size</label>
                                 <select class="form-select" name="size">
                                     <option value="" {{ old('size') === '' ? 'selected' : '' }}>Select size</option>
-                                    @foreach (['S', 'M', 'L', 'XL', 'XXL'] as $sz)
+                                    @foreach (['XS', 'S', 'M', 'L', 'XL', 'XXL'] as $sz)
                                         <option value="{{ $sz }}" {{ old('size') === $sz ? 'selected' : '' }}>{{ $sz }}</option>
                                     @endforeach
                                 </select>

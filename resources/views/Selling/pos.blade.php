@@ -489,7 +489,7 @@
 
             $custName = $lastOrder->customer_name ?: 'Ms. Kavitha R';
             $custPhone = $lastOrder->customer_mobile ?: '98765 43210';
-            $custAddress = 'No. 12, 3rd Cross Street, Anna Nagar, Chennai - 600040, Tamil Nadu, India';
+            $custAddress = '1st Floor, F 200, 1st St, Block F, Annanagar East, Chennai, Greater Chennai, Tamil Nadu 600102 Tamil Nadu, India';
 
             $totalMrp = 0;
             $totalDiscount = 0;

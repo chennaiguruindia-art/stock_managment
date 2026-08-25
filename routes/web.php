@@ -14,6 +14,8 @@ Route::post('/barcode-check', [MainController::class, 'barcodeCheck'])->name('ba
 Route::get('/barcode-lookup', [indexController::class, 'barcode_lookup'])->name('barcode_lookup');
 Route::post('/barcode-lookup', [MainController::class, 'barcode_lookup'])->name('barcode_lookup_post');
 Route::get('/stock-management', [indexController::class, 'stock_management'])->name('stock_management');
+Route::get('/stock-management/export/excel', [indexController::class, 'export_stock_excel'])->name('stock_export_excel');
+Route::get('/stock-management/export/pdf', [indexController::class, 'export_stock_pdf'])->name('stock_export_pdf');
 Route::post('/stock-management/update', [MainController::class, 'updateStock'])->name('stock_update');
 Route::get('/return-product', [indexController::class, 'return_product'])->name('return_product');
 Route::post('/return-product/process', [MainController::class, 'processReturn'])->name('return_process');

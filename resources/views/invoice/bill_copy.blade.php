@@ -402,7 +402,7 @@
         // Customer details fetched from DB!
         $custName = $order->customer_name ?: 'Ms. Kavitha R';
         $custPhone = $order->customer_mobile ?: '98765 43210';
-        $custAddress = 'No. 12, 3rd Cross Street, Anna Nagar, Chennai - 600040, Tamil Nadu, India';
+        $custAddress = '1st Floor, F 200, 1st St, Block F, Annanagar East, Chennai, Greater Chennai, Tamil Nadu 600102 Tamil Nadu, India';
 
         // Calculate MRP and discount totals
         $totalMrp = 0;
@@ -511,14 +511,15 @@
         <div class="bill-cust-grid">
             <div class="cust-card">
                 <div class="cust-card-title">BILL TO</div>
-                <div class="cust-name">{{ $custName }}</div>
-                <div class="cust-address">{{ $custAddress }}</div>
-                <div class="cust-phone">Phone : {{ $custPhone }}</div>
+                <div class="cust-name">Zyra Lifestyle</div>
+                <div class="cust-address">1st Floor, F 200, 1st St, Block F, Annanagar East, Chennai, Greater Chennai, Tamil Nadu 600102</div>
+                <div class="cust-phone">Phone : 9884125555</div>
             </div>
             <div class="cust-card">
                 <div class="cust-card-title">SHIP TO</div>
                 <div class="cust-name">{{ $custName }}</div>
                 <div class="cust-phone">Phone : {{ $custPhone }}</div>
+                <div class="cust-address">Bangalore,Karnataka</div>
             </div>
         </div>
 

@@ -63,8 +63,8 @@ class MainController extends Controller
 
         $sku = strtoupper(sprintf('%s-%s-%s-%s', $brand->abbreviation, $productId, $this->colorCode($color), $size));
 
-        // Next auto barcode = ZY-{brand abbreviation}-{per-brand number}, e.g. ZY-ly-00001.
-        $autoBarcode = 'ZY-' . $brand->abbreviation . '-' . str_pad((int) $brand->barcode_count + 1, 5, '0', STR_PAD_LEFT);
+        // Next auto barcode = ZY + running 8-digit number, e.g. ZY19821001 -> ZY19821002.
+        $autoBarcode = $this->nextAutoBarcode();
 
         // Allow a manually set barcode; otherwise fall back to the auto one.
         $barcode = trim($request->input('barcode') ?? '');
@@ -148,6 +148,20 @@ class MainController extends Controller
     }
 
     /**
+     * Next auto barcode = ZY followed by a running 8-digit number.
+     * First product gets ZY19821001, next ZY19821002, and so on.
+     */
+    private function nextAutoBarcode(): string
+    {
+        $max = Addproduct::where('barcode', 'like', 'ZY%')
+            ->pluck('barcode')
+            ->map(fn ($b) => preg_match('/^ZY(\d{8})$/i', (string) $b) ? (int) substr($b, 2) : 0)
+            ->max();
+
+        return 'ZY' . str_pad((string) ($max > 0 ? $max + 1 : 19821001), 8, '0', STR_PAD_LEFT);
+    }
+
+    /**
      * Return next SKU / product_id and brand barcode for frontend (AJAX).
      */
     public function brandInfo(Request $request)
@@ -188,8 +202,8 @@ class MainController extends Controller
 
         $sku = strtoupper(sprintf('%s-%s-%s-%s', $abbr, $productId, $this->colorCode($color), $size));
 
-        // Preview the next auto barcode: ZY-{abbr}-{barcode_count+1}, e.g. ZY-ly-00001.
-        $barcode = 'ZY-' . $abbr . '-' . str_pad((int) ($brand->barcode_count ?? 0) + 1, 5, '0', STR_PAD_LEFT);
+        // Preview the next auto barcode: ZY + running 8-digit number, e.g. ZY19821001.
+        $barcode = $this->nextAutoBarcode();
 
         return response()->json([
             'sku' => $sku,
