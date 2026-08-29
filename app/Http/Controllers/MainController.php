@@ -10,6 +10,8 @@ use App\Models\OrderItem;
 use App\Models\StockReturn;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Artisan;
+
 
 class MainController extends Controller
 {
@@ -121,7 +123,28 @@ class MainController extends Controller
         ]);
         $brand->increment('barcode_count');
 
-        return redirect()->route('dashboard')->with('success','Product added successfully');
+        return redirect()->route('dashboard')->with('success', 'Product added successfully');
+    }
+
+    public function runMigrations()
+    {
+        Artisan::call('migrate', ['--force' => true]);
+
+        return '<pre>' . Artisan::output() . '</pre>';
+    }
+
+    public function runMigrationsFresh()
+    {
+        Artisan::call('migrate:fresh', ['--force' => true, '--seed' => true]);
+
+        return '<pre>' . Artisan::output() . '</pre>';
+    }
+
+    public function runSeeders()
+    {
+        Artisan::call('db:seed', ['--force' => true]);
+
+        return '<pre>' . Artisan::output() . '</pre>';
     }
 
     /**
@@ -155,7 +178,7 @@ class MainController extends Controller
     {
         $max = Addproduct::where('barcode', 'like', 'ZY%')
             ->pluck('barcode')
-            ->map(fn ($b) => preg_match('/^ZY(\d{8})$/i', (string) $b) ? (int) substr($b, 2) : 0)
+            ->map(fn($b) => preg_match('/^ZY(\d{8})$/i', (string) $b) ? (int) substr($b, 2) : 0)
             ->max();
 
         return 'ZY' . str_pad((string) ($max > 0 ? $max + 1 : 19821001), 8, '0', STR_PAD_LEFT);
@@ -191,9 +214,9 @@ class MainController extends Controller
 
         $existing = $productName !== ''
             ? Addproduct::whereRaw('LOWER(product_name) = ?', [Str::lower($productName)])
-                ->whereNotNull('product_id')
-                ->orderBy('id')
-                ->first()
+            ->whereNotNull('product_id')
+            ->orderBy('id')
+            ->first()
             : null;
 
         $productId = $existing

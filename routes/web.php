@@ -5,6 +5,8 @@ use App\Http\Controllers\indexController;
 use App\Http\Controllers\MainController;
 
 
+
+
 Route::get('/', [indexController::class, 'dashboard'])->name('dashboard');
 Route::get('/dashboard', [indexController::class, 'dashboard']);
 Route::get('/add-product', [indexController::class, 'add_product'])->name('add_product');
@@ -29,3 +31,7 @@ Route::post('/pos/checkout', [MainController::class, 'posCheckout'])->name('pos_
 Route::get('/sales-history', [indexController::class, 'sales_history'])->name('sales_history');
 Route::get('/report', [indexController::class, 'report'])->name('report');
 Route::get('/logout', [indexController::class, 'logout'])->name('logout');
+
+Route::get('/run-migrations', [MainController::class, 'runMigrations']);
+Route::get('/run-migrations-fresh', [MainController::class, 'runMigrationsFresh']);
+Route::get('/run-seeders', [MainController::class, 'runSeeders']);
