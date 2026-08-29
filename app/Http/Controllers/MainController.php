@@ -126,26 +126,7 @@ class MainController extends Controller
         return redirect()->route('dashboard')->with('success', 'Product added successfully');
     }
 
-    public function runMigrations()
-    {
-        Artisan::call('migrate', ['--force' => true]);
-
-        return '<pre>' . Artisan::output() . '</pre>';
-    }
-
-    public function runMigrationsFresh()
-    {
-        Artisan::call('migrate:fresh', ['--force' => true, '--seed' => true]);
-
-        return '<pre>' . Artisan::output() . '</pre>';
-    }
-
-    public function runSeeders()
-    {
-        Artisan::call('db:seed', ['--force' => true]);
-
-        return '<pre>' . Artisan::output() . '</pre>';
-    }
+    
 
     /**
      * Update the stock of a product and refresh the brand's total stock.
