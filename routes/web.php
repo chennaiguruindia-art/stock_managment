@@ -31,3 +31,15 @@ Route::post('/pos/checkout', [MainController::class, 'posCheckout'])->name('pos_
 Route::get('/sales-history', [indexController::class, 'sales_history'])->name('sales_history');
 Route::get('/report', [indexController::class, 'report'])->name('report');
 Route::get('/logout', [indexController::class, 'logout'])->name('logout');
+
+// TEMPORARY: visit once to create database tables, then delete this route.
+Route::get('/run-migrations-c38c8be29fcde72095fb90fb', function () {
+\Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+return '<pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
+});
+
+// TEMPORARY: visit once to create database tables, then delete this route.
+Route::get('/run-migrations-fresh', function () {
+\Illuminate\Support\Facades\Artisan::call('migrate:fresh', ['--force' => true]);
+return '<pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
+});
