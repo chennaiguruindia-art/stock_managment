@@ -2,30 +2,50 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Addproduct;
 use App\Models\Brand;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\StockReturn;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Artisan;
-
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class MainController extends Controller
 {
     public function add_product(Request $request)
     {
-        // Brand is selected from a dropdown; "__new" means a fresh brand was typed in.
-        $brandName = $request->input('brand');
-        if ($brandName === '__new') {
-            $brandName = $request->input('new_brand_name');
+        $result = $this->createProductFromData($request->all());
+
+        if ($result['ok'] === false) {
+            return back()->withInput()->with('error', $result['error']);
         }
-        $brandName = trim($brandName ?? '');
+
+        return redirect()->route('dashboard')->with('success', 'Product added successfully');
+    }
+
+    /**
+     * Core single-product creation used by both the manual form and the
+     * Excel/CSV import. Returns ['ok' => bool, 'error' => string|null, ...].
+     *
+     * @param  array  $data  All raw inputs (brand, product_name, product_type, color,
+     *                       size, stock, prices, barcode, description, ...).
+     */
+    private function createProductFromData(array $data): array
+    {
+        // Brand is selected from a dropdown; "__new" means a fresh brand was typed in.
+        $brandName = $data['brand'] ?? '';
+        if ($brandName === '__new') {
+            $brandName = $data['new_brand_name'] ?? '';
+        }
+        $brandName = $brandName === null ? '' : trim((string) $brandName);
 
         if ($brandName === '') {
-            return back()->withInput()->with('error', 'Please select or enter a brand.');
+            return ['ok' => false, 'error' => 'Please select or enter a brand.'];
         }
 
         $brandAbbr = Str::lower(preg_replace('/\s+/', '', $brandName));
@@ -37,17 +57,23 @@ class MainController extends Controller
             ['abbreviation' => $brandAbbr]
         );
 
-        $productName = trim($request->input('product_name'));
+        $productName = $data['product_name'] ?? null;
+        $productName = $productName === null ? '' : trim((string) $productName);
         if ($productName === '') {
-            return back()->withInput()->with('error', 'Product name is required.');
+            return ['ok' => false, 'error' => 'Product name is required.'];
         }
 
         // product_id is unique per product name (e.g. Chudi = 001), not per brand.
         $productId = $this->productIdFor($productName);
 
-        $size = trim((string) $request->input('size'));
-        $color = trim((string) $request->input('color'));
-        $productType = trim((string) $request->input('product_type'));
+        $rawSize = $data['size'] ?? '';
+        $rawColor = $data['color'] ?? '';
+        $rawType = $data['product_type'] ?? '';
+        $rawStock = $data['stock'] ?? 0;
+
+        $size = $rawSize === null ? '' : trim((string) $rawSize);
+        $color = $rawColor === null ? '' : trim((string) $rawColor);
+        $productType = $rawType === null ? '' : trim((string) $rawType);
 
         // Duplicate rule: reject only when brand + product name + product type + color + size
         // all match an existing product. Same brand/name/type with a different color or size
@@ -60,7 +86,7 @@ class MainController extends Controller
             ->exists();
 
         if ($duplicate) {
-            return back()->withInput()->with('error', 'This product already exists with the same brand, name, type, color and size. Choose a different color or size to add a new variant.');
+            return ['ok' => false, 'error' => 'This product already exists with the same brand, name, type, color and size. Choose a different color or size to add a new variant.'];
         }
 
         $sku = strtoupper(sprintf('%s-%s-%s-%s', $brand->abbreviation, $productId, $this->colorCode($color), $size));
@@ -69,7 +95,8 @@ class MainController extends Controller
         $autoBarcode = $this->nextAutoBarcode();
 
         // Allow a manually set barcode; otherwise fall back to the auto one.
-        $barcode = trim($request->input('barcode') ?? '');
+        $barcode = $data['barcode'] ?? '';
+        $barcode = $barcode === null ? '' : trim((string) $barcode);
         if ($barcode === '') {
             $barcode = $autoBarcode;
         }
@@ -77,39 +104,44 @@ class MainController extends Controller
         // Last 4 digits of the barcode must be unique across all products.
         $last4 = strtoupper(substr($barcode, -4));
         if (Addproduct::whereRaw('UPPER(RIGHT(barcode, 4)) = ?', [$last4])->exists()) {
-            return back()->withInput()->with('error', "Barcode ending in {$last4} is already used. Please choose a unique one.");
+            return ['ok' => false, 'error' => "Barcode ending in {$last4} is already used. Please choose a unique one."];
         }
 
         // sanitize numeric fields (strip currency symbols and commas)
         $sanitizeDecimal = function ($val) {
-            if ($val === null) return null;
+            if ($val === null) {
+                return null;
+            }
             $val = trim((string) $val);
-            if ($val === '') return null;
+            if ($val === '') {
+                return null;
+            }
             $clean = preg_replace('/[^0-9.\-]/', '', $val);
+
             return $clean === '' ? null : $clean;
         };
 
-        $originalPrice = $sanitizeDecimal($request->input('original_price'));
-        $mrp = $sanitizeDecimal($request->input('mrp'));
-        $sellingPrice = $sanitizeDecimal($request->input('selling_price'));
-        $discountAmount = $sanitizeDecimal($request->input('discount_amount'));
+        $originalPrice = $sanitizeDecimal($data['original_price'] ?? null);
+        $mrp = $sanitizeDecimal($data['mrp'] ?? null);
+        $sellingPrice = $sanitizeDecimal($data['selling_price'] ?? null);
+        $discountAmount = $sanitizeDecimal($data['discount_amount'] ?? null);
 
         Addproduct::create([
-            'product_name' => $request->input('product_name'),
+            'product_name' => $productName,
             'brand_id' => $brand->id,
             'brand' => $brand->name,
-            'product_type' => $request->input('product_type'),
+            'product_type' => $productType,
             'color' => $color,
             'size' => $size,
             'sku' => $sku,
             'product_id' => $productId,
             'barcode' => $barcode,
-            'stock' => (int) $request->input('stock', 0),
+            'stock' => (int) $rawStock,
             'original_price' => $originalPrice === null ? null : (float) $originalPrice,
             'mrp' => $mrp === null ? null : (float) $mrp,
             'selling_price' => $sellingPrice === null ? null : (float) $sellingPrice,
             'discount_amount' => $discountAmount === null ? null : (float) $discountAmount,
-            'description' => $request->input('description')
+            'description' => $data['description'] ?? null,
         ]);
 
         // Keep the brand row in sync with the latest product's identifiers,
@@ -123,10 +155,215 @@ class MainController extends Controller
         ]);
         $brand->increment('barcode_count');
 
-        return redirect()->route('dashboard')->with('success', 'Product added successfully');
+        return [
+            'ok' => true,
+            'error' => null,
+            'barcode' => $barcode,
+            'sku' => $sku,
+            'product_id' => $productId,
+            'brand_id' => $brand->id,
+        ];
     }
 
-    
+    /**
+     * Download a ready-to-fill sample Excel template for importing products.
+     */
+    public function download_sample()
+    {
+        $spreadsheet = new Spreadsheet;
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $headers = [
+            'brand', 'product_name', 'product_type', 'color', 'size', 'stock',
+            'original_price', 'mrp', 'selling_price', 'barcode', 'description',
+        ];
+        $sheet->fromArray($headers, null, 'A1');
+
+        // Bold the header row.
+        $sheet->getStyle('A1:K1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:K1')->getFill()
+            ->setFillType(Fill::FILL_SOLID)
+            ->getStartColor()->setARGB('F3E2E3');
+
+        // A single example row so users can see the expected format.
+        $example = [
+            'Zyra', 'Chudi', 'Short Kurthi ', 'Red', 'M', 10,
+            799, 999, 699, '', 'Example row - delete before uploading your data.',
+        ];
+        $sheet->fromArray($example, null, 'A2');
+
+        foreach (range('A', 'K') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'product-import-sample.xlsx';
+
+        return $this->downloadSpreadsheet($writer, $fileName, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    }
+
+    /**
+     * Download a ready-to-fill sample CSV template for importing products.
+     */
+    public function download_sample_csv()
+    {
+        $headers = [
+            'brand', 'product_name', 'product_type', 'color', 'size', 'stock',
+            'original_price', 'mrp', 'selling_price', 'barcode', 'description',
+        ];
+        $example = [
+            'Zyra', 'Chudi', 'Short Kurthi ', 'Red', 'M', 10,
+            799, 999, 699, '', 'Example row - delete before uploading your data.',
+        ];
+
+        $handle = fopen('php://temp', 'r+');
+        fputcsv($handle, $headers);
+        fputcsv($handle, $example);
+        rewind($handle);
+        $csv = stream_get_contents($handle);
+        fclose($handle);
+
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="product-import-sample.csv"',
+        ]);
+    }
+
+    /**
+     * Store the writer output in a temp stream and return it as a file download.
+     */
+    private function downloadSpreadsheet($writer, string $fileName, string $mime)
+    {
+        $tmp = tempnam(sys_get_temp_dir(), 'zyra');
+        $writer->save($tmp);
+        $data = file_get_contents($tmp);
+        @unlink($tmp);
+
+        return response($data, 200, [
+            'Content-Type' => $mime,
+            'Content-Disposition' => 'attachment; filename="'.$fileName.'"',
+        ]);
+    }
+
+    /**
+     * Import products in bulk from an uploaded Excel (.xlsx/.xls) or CSV file.
+     * Each data row creates a new product using the same rules as the manual form.
+     */
+    public function import_products(Request $request)
+    {
+        $request->validate([
+            'import_file' => 'required|file|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        $file = $request->file('import_file');
+
+        try {
+            $spreadsheet = IOFactory::load($file->getRealPath());
+            $rows = $spreadsheet->getActiveSheet()->toArray();
+        } catch (\Throwable $e) {
+            return back()->with('error', 'Could not read the file. Please upload a valid .xlsx, .xls or .csv file.');
+        }
+
+        if (empty($rows)) {
+            return back()->with('error', 'The uploaded file is empty.');
+        }
+
+        // First row is expected to be a header row.
+        $header = array_map(function ($h) {
+            return strtolower(trim((string) $h));
+        }, array_shift($rows));
+
+        if (empty($header) || ! in_array('product_name', $header)) {
+            return back()->with('error', 'The first row must be a header row containing at least a "product_name" column. Download the sample file to see the expected format.');
+        }
+
+        $added = 0;
+        $skipped = 0;
+        $errors = [];
+
+        // Build a column index => header-name map, making duplicates unique so
+        // array_combine never fails.
+        $columnKeys = [];
+        $seen = [];
+        foreach ($header as $i => $h) {
+            $name = $h === '' ? '' : $h;
+            if ($name === '' || isset($seen[$name])) {
+                $count = ($seen[$name] ?? 0) + 1;
+                $name = $name.'_'.$count;
+            }
+            $seen[$name] = ($seen[$name] ?? 0);
+            $columnKeys[$i] = $name;
+        }
+
+        foreach ($rows as $index => $row) {
+            $values = [];
+            foreach ($row as $i => $val) {
+                $values[$columnKeys[$i] ?? ('col_'.$i)] = $val;
+            }
+
+            // Map the spreadsheet columns to the keys expected by createProductFromData().
+            $data = [
+                'brand' => $this->cellValue($values, ['brand']),
+                'product_name' => $this->cellValue($values, ['product_name', 'product name', 'product']),
+                'product_type' => $this->cellValue($values, ['product_type', 'product type', 'type']),
+                'color' => $this->cellValue($values, ['color']),
+                'size' => $this->cellValue($values, ['size']),
+                'stock' => $this->cellValue($values, ['stock', 'quantity', 'qty']),
+                'original_price' => $this->cellValue($values, ['original_price', 'original price']),
+                'mrp' => $this->cellValue($values, ['mrp']),
+                'selling_price' => $this->cellValue($values, ['selling_price', 'selling price', 'price']),
+                'barcode' => $this->cellValue($values, ['barcode']),
+                'description' => $this->cellValue($values, ['description']),
+            ];
+
+            // Skip fully-blank rows.
+            if (implode('', $data) === '') {
+                continue;
+            }
+
+            $result = $this->createProductFromData($data);
+
+            if ($result['ok']) {
+                $added++;
+            } else {
+                $skipped++;
+                $rowNo = $index + 2; // +2 because we shifted the header and rows are 1-based.
+                $errors[] = "Row {$rowNo}: {$result['error']}";
+            }
+        }
+
+        if ($added === 0 && $skipped === 0) {
+            return back()->with('error', 'No valid product rows were found in the file.');
+        }
+
+        $message = "Import complete: {$added} product(s) added, {$skipped} skipped.";
+        if (! empty($errors)) {
+            $message .= ' '.implode(' | ', array_slice($errors, 0, 10));
+            if (count($errors) > 10) {
+                $message .= ' | ... and '.(count($errors) - 10).' more.';
+            }
+        }
+
+        if ($added === 0) {
+            return back()->with('error', $message);
+        }
+
+        return redirect()->route('stock_management')->with('success', $message);
+    }
+
+    /**
+     * Read a raw cell value selecting from the first matching column alias.
+     */
+    private function cellValue(array $values, array $aliases): mixed
+    {
+        foreach ($aliases as $alias) {
+            if (array_key_exists($alias, $values) && $values[$alias] !== null) {
+                return $values[$alias];
+            }
+        }
+
+        return null;
+    }
 
     /**
      * Update the stock of a product and refresh the brand's total stock.
@@ -148,7 +385,7 @@ class MainController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'Stock updated for ' . $product->product_name);
+        return redirect()->back()->with('success', 'Stock updated for '.$product->product_name);
     }
 
     /**
@@ -159,10 +396,10 @@ class MainController extends Controller
     {
         $max = Addproduct::where('barcode', 'like', 'ZY%')
             ->pluck('barcode')
-            ->map(fn($b) => preg_match('/^ZY(\d{8})$/i', (string) $b) ? (int) substr($b, 2) : 0)
+            ->map(fn ($b) => preg_match('/^ZY(\d{8})$/i', (string) $b) ? (int) substr($b, 2) : 0)
             ->max();
 
-        return 'ZY' . str_pad((string) ($max > 0 ? $max + 1 : 19821001), 8, '0', STR_PAD_LEFT);
+        return 'ZY'.str_pad((string) ($max > 0 ? $max + 1 : 19821001), 8, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -176,7 +413,7 @@ class MainController extends Controller
         }
         $brandName = trim($brandName ?? '');
 
-        if (!$brandName) {
+        if (! $brandName) {
             return response()->json(['error' => 'brand required'], 400);
         }
 
@@ -195,9 +432,9 @@ class MainController extends Controller
 
         $existing = $productName !== ''
             ? Addproduct::whereRaw('LOWER(product_name) = ?', [Str::lower($productName)])
-            ->whereNotNull('product_id')
-            ->orderBy('id')
-            ->first()
+                ->whereNotNull('product_id')
+                ->orderBy('id')
+                ->first()
             : null;
 
         $productId = $existing
@@ -213,7 +450,7 @@ class MainController extends Controller
             'sku' => $sku,
             'product_id' => $productId,
             'barcode' => $barcode,
-            'seq' => $productId
+            'seq' => $productId,
         ]);
     }
 
@@ -291,7 +528,7 @@ class MainController extends Controller
         }
 
         $last4 = strtoupper(substr($barcode, -4));
-        $unique = !Addproduct::whereRaw('UPPER(RIGHT(barcode, 4)) = ?', [$last4])->exists();
+        $unique = ! Addproduct::whereRaw('UPPER(RIGHT(barcode, 4)) = ?', [$last4])->exists();
 
         return response()->json(['last4' => $last4, 'unique' => $unique]);
     }
@@ -320,13 +557,13 @@ class MainController extends Controller
 
         // Match exact barcode first, then fall back to a unique last-4-digit match.
         $product = Addproduct::where('barcode', $barcode)->first();
-        if (!$product && strlen($barcode) > 0) {
+        if (! $product && strlen($barcode) > 0) {
             $last4 = strtoupper(substr($barcode, -4));
             $product = Addproduct::whereRaw('UPPER(RIGHT(barcode, 4)) = ?', [$last4])->first();
         }
 
-        if (!$product) {
-            return response()->json(['error' => 'Product not found for barcode ' . $barcode], 404);
+        if (! $product) {
+            return response()->json(['error' => 'Product not found for barcode '.$barcode], 404);
         }
 
         $price = (float) ($product->selling_price ?? 0);
@@ -356,7 +593,7 @@ class MainController extends Controller
             $cart = json_decode($cart, true);
         }
 
-        if (empty($cart) || !is_array($cart)) {
+        if (empty($cart) || ! is_array($cart)) {
             return redirect()->back()->with('error', 'Cart is empty.');
         }
 
@@ -365,7 +602,7 @@ class MainController extends Controller
 
         foreach ($cart as $row) {
             $product = Addproduct::find($row['id'] ?? null);
-            if (!$product) {
+            if (! $product) {
                 continue;
             }
             $qty = max(1, (int) ($row['qty'] ?? 1));
@@ -396,7 +633,7 @@ class MainController extends Controller
         // Order id based on the last order placed so far (no reuse after deletion).
         $lastOrderId = Order::orderByDesc('id')->value('order_id');
         $seq = $lastOrderId ? (int) substr($lastOrderId, 4) + 1 : 1;
-        $orderId = 'ORD-' . str_pad($seq, 4, '0', STR_PAD_LEFT);
+        $orderId = 'ORD-'.str_pad($seq, 4, '0', STR_PAD_LEFT);
 
         $paymentMode = trim($request->input('payment_mode') ?? '') ?: 'Online UPI';
 
@@ -434,9 +671,9 @@ class MainController extends Controller
     public function invoice_store(Request $request)
     {
         $request->validate([
-            'product_id'      => 'required|integer|exists:addproducts,id',
-            'quantity'        => 'required|integer|min:1',
-            'customer_name'   => 'nullable|string|max:100',
+            'product_id' => 'required|integer|exists:addproducts,id',
+            'quantity' => 'required|integer|min:1',
+            'customer_name' => 'nullable|string|max:100',
             'customer_mobile' => 'nullable|string|max:20',
         ]);
 
@@ -453,21 +690,21 @@ class MainController extends Controller
 
         $order = DB::transaction(function () use ($request, $product, $qty, $price, $lineTotal) {
             $order = Order::create([
-                'order_id'        => Order::nextOrderId(),
-                'customer_name'   => trim($request->input('customer_name') ?? '') ?: null,
+                'order_id' => Order::nextOrderId(),
+                'customer_name' => trim($request->input('customer_name') ?? '') ?: null,
                 'customer_mobile' => trim($request->input('customer_mobile') ?? '') ?: null,
-                'total'           => $lineTotal,
+                'total' => $lineTotal,
             ]);
 
             OrderItem::create([
-                'order_id'     => $order->id,
-                'product_id'   => $product->id,
+                'order_id' => $order->id,
+                'product_id' => $product->id,
                 'product_name' => $product->product_name,
-                'sku'          => $product->sku,
-                'barcode'      => $product->barcode,
-                'price'        => $price,
-                'qty'          => $qty,
-                'total'        => $lineTotal,
+                'sku' => $product->sku,
+                'barcode' => $product->barcode,
+                'price' => $price,
+                'qty' => $qty,
+                'total' => $lineTotal,
             ]);
 
             // Deduct stock and refresh the brand's total stock.
@@ -498,7 +735,7 @@ class MainController extends Controller
 
         $item = OrderItem::with('order')->find($itemId);
 
-        if (!$item) {
+        if (! $item) {
             return redirect()->route('return_product')->with('error', 'Return item not found.');
         }
 
