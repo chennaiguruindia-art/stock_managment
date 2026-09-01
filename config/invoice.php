@@ -20,7 +20,7 @@ return [
         'email'         => 'order@shopwithzyra.in',
         'website'       => 'www.shopwithzyra.in',
         'instagram'     => '@zyraofficial46',
-        'gstin'         => '33ABCDE1234F1Z5',
+        'gstin'         => ' 33BMTPA7854C2Z0',
         'sales_exec'    => 'Anitha Rajesh',
         'store_location'=> 'ZYRA Lifestyle – Chennai',
     ],
