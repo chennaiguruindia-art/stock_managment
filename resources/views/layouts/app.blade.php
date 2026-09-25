@@ -356,6 +356,7 @@
 
             <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"><i class="bi bi-speedometer2"></i> Dashboard</a>
             <a href="{{ route('add_product') }}" class="nav-link {{ request()->routeIs('add_product') ? 'active' : '' }}"><i class="bi bi-plus-circle"></i> Add product</a>
+            <a href="{{ route('barcodes') }}" class="nav-link {{ request()->routeIs('barcodes*') || request()->routeIs('barcode_detail*') ? 'active' : '' }}"><i class="bi bi-upc-scan"></i> Product Barcode</a>
             <a href="{{ route('stock_management') }}" class="nav-link {{ request()->routeIs('stock_management') ? 'active' : '' }}"><i class="bi bi-box-seam"></i> Stock management</a>
             <a href="{{ route('return_product') }}" class="nav-link {{ request()->routeIs('return_product') ? 'active' : '' }}"><i class="bi bi-arrow-counterclockwise"></i> Return</a>
             <a href="{{ route('sell_pos') }}" class="nav-link {{ request()->routeIs('sell_pos') ? 'active' : '' }}"><i class="bi bi-currency-dollar"></i> Sell / POS</a>

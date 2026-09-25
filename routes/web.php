@@ -18,6 +18,8 @@ Route::post('/brand-info', [MainController::class, 'brandInfo'])->name('brand_in
 Route::post('/barcode-check', [MainController::class, 'barcodeCheck'])->name('barcode_check');
 Route::get('/barcode-lookup', [indexController::class, 'barcode_lookup'])->name('barcode_lookup');
 Route::post('/barcode-lookup', [MainController::class, 'barcode_lookup'])->name('barcode_lookup_post');
+Route::get('/barcode', [indexController::class, 'barcodes'])->name('barcodes');
+Route::get('/barcode/{product}', [indexController::class, 'barcode_detail'])->name('barcode_detail');
 Route::get('/stock-management', [indexController::class, 'stock_management'])->name('stock_management');
 Route::get('/stock-management/export/excel', [indexController::class, 'export_stock_excel'])->name('stock_export_excel');
 Route::get('/stock-management/export/pdf', [indexController::class, 'export_stock_pdf'])->name('stock_export_pdf');

@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Addproduct;
 use App\Models\Brand;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\StockReturn;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Picqer\Barcode\BarcodeGeneratorPNG;
 
 class indexController extends Controller
 {
@@ -29,7 +32,44 @@ class indexController extends Controller
     public function add_product()
     {
         $brands = Brand::orderBy('name')->get();
+
         return view('Product.add_product', compact('brands'));
+    }
+
+    /**
+     * List all products (name + product id) with a link to open each product's barcode.
+     */
+    public function barcodes()
+    {
+        $products = Addproduct::orderBy('brand')->orderBy('product_name')->get();
+
+        return view('Product.barcodes', compact('products'));
+    }
+
+    /**
+     * Show the printable barcode page for a single product. The 1D barcode encodes
+     * the product's barcode number (e.g. ZY19821005).
+     */
+    public function barcode_detail(Addproduct $product)
+    {
+        $barcodeDataUri = $this->barcodeDataUri($product->barcode);
+
+        return view('Product.barcode_detail', compact('product', 'barcodeDataUri'));
+    }
+
+    /**
+     * Build a base64 PNG data-URI 1D barcode (Code128) for the given value.
+     */
+    private function barcodeDataUri(string $value): string
+    {
+        try {
+            $generator = new BarcodeGeneratorPNG;
+            $image = $generator->getBarcode($value, $generator::TYPE_CODE_128, 2, 60);
+
+            return 'data:image/png;base64,'.base64_encode($image);
+        } catch (\Throwable $e) {
+            return '';
+        }
     }
 
     public function barcode_lookup()
@@ -57,7 +97,7 @@ class indexController extends Controller
         return response()
             ->view('exports.stock_excel', compact('products'))
             ->header('Content-Type', 'application/vnd.ms-excel')
-            ->header('Content-Disposition', 'attachment; filename="stock-report-' . date('Ymd-His') . '.xls"');
+            ->header('Content-Disposition', 'attachment; filename="stock-report-'.date('Ymd-His').'.xls"');
     }
 
     public function export_stock_pdf()
@@ -69,12 +109,12 @@ class indexController extends Controller
         $outOfStock = $products->filter(fn ($p) => $p->stock <= 0)->count();
         $company = config('invoice.company');
 
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView(
+        $pdf = Pdf::loadView(
             'exports.stock_pdf',
             compact('products', 'totalStock', 'lowStock', 'outOfStock', 'company')
         )->setPaper('a4', 'landscape');
 
-        return $pdf->download('stock-report-' . date('Ymd-His') . '.pdf');
+        return $pdf->download('stock-report-'.date('Ymd-His').'.pdf');
     }
 
     public function return_product(Request $request)
@@ -115,6 +155,7 @@ class indexController extends Controller
                         return true;
                     }
                 }
+
                 return false;
             });
 
@@ -216,7 +257,7 @@ class indexController extends Controller
         $healthPct = $totalProducts ? round($healthyStock / $totalProducts * 100) : 0;
 
         // Top selling products (by quantity sold).
-        $topProducts = \App\Models\OrderItem::selectRaw('product_name, SUM(qty) as total_qty, SUM(total) as total_rev')
+        $topProducts = OrderItem::selectRaw('product_name, SUM(qty) as total_qty, SUM(total) as total_rev')
             ->groupBy('product_name')
             ->orderByDesc('total_qty')
             ->limit(5)
