@@ -20,6 +20,9 @@ class DatabaseSeeder extends Seeder
         // Standalone, individually sellable dupatta (Rs.300).
         $this->call(DupattaProductSeeder::class);
 
+        // Which products ship with a dupatta - drives the POS popup + card chip.
+        $this->call(DupattaFlagsSeeder::class);
+
         // Demo user. Deliberately NOT User::factory(): faker lives in require-dev,
         // so the factory blows up with "undefined function fake()" on any
         // composer install --no-dev deployment - and it is not idempotent,
