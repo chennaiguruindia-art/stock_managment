@@ -367,6 +367,60 @@
             text-transform: uppercase;
         }
 
+        /* ---- phone / narrow screens -------------------------------------
+           At a 390px viewport this page laid out 583px wide: the header row
+           (logo + INVOICE badge + meta table side by side), the 7-column items
+           table and the 2-up summary grid all ran past the right edge. Stack
+           the columns and let the table scroll sideways inside its wrapper.
+
+           `screen` is load-bearing: without a media type this block also
+           matched inside the print pass and re-stacked the layout, pushing the
+           invoice from 971px back onto a 2nd page. */
+        @media screen and (max-width: 768px) {
+            .bill-paper {
+                padding: 1.1rem 0.85rem;
+                border-radius: 0;
+                border-left: 0;
+                border-right: 0;
+                box-shadow: none;
+            }
+
+            .bill-top-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                gap: 0.9rem;
+                margin-bottom: 1.1rem;
+            }
+            .zyra-logo-box img {
+                max-width: 190px !important;
+                max-height: 84px !important;
+            }
+            .zyra-title { font-size: 2rem; }
+            .bill-badge-wrapper { text-align: center; width: 100%; }
+            .bill-badge-title { padding: 0.35rem 1.5rem; }
+            .bill-meta-table { margin-left: auto; margin-right: auto; text-align: left; }
+
+            .bill-cust-grid,
+            .bill-summary-grid,
+            .terms-grid {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+
+            .bill-table-wrap {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                width: 100%;
+            }
+            .bill-table {
+                min-width: 540px;
+                margin-bottom: 1.5rem;
+            }
+
+            .footer-script .t-script { font-size: 1.3rem; }
+        }
+
         /* Declaring an explicit @page rule is what stops Chrome printing its own
            date / URL / "1 of 2" headers and footers - with no @page at all it
            always adds them (verified in headless Chrome: 41500 bytes / 5 streams
@@ -607,6 +661,7 @@
         </div>
 
         <!-- Products Table -->
+        <div class="bill-table-wrap">
         <table class="bill-table">
             <thead>
                 <tr>
@@ -653,6 +708,7 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
 
         <!-- Summary & Thank You Grid -->
         <div class="bill-summary-grid">
