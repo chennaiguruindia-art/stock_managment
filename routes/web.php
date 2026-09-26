@@ -37,12 +37,24 @@ Route::get('/sales-history', [indexController::class, 'sales_history'])->name('s
 Route::get('/report', [indexController::class, 'report'])->name('report');
 Route::get('/logout', [indexController::class, 'logout'])->name('logout');
 
-Route::get('/run-migrations', function () {
-\Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
-return '<pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
+// These helper routes shell out to Artisan. Migrating + seeding can easily exceed
+// PHP's default 60s cap (we saw "Maximum execution time of 60 seconds exceeded"),
+// so lift the limit for the duration of the request.
+$noTimeLimit = function () {
+    @set_time_limit(0);
+    if (function_exists('ignore_user_abort')) {
+        @ignore_user_abort(true);
+    }
+};
+
+Route::get('/run-migrations', function () use ($noTimeLimit) {
+    $noTimeLimit();
+    \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+    return '<pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
 });
 
-Route::get('/run-migrations-fresh-seed', function () {
+Route::get('/run-migrations-fresh-seed', function () use ($noTimeLimit) {
+    $noTimeLimit();
     \Illuminate\Support\Facades\Artisan::call('migrate:fresh', [
         '--seed' => true,
         '--force' => true,
@@ -50,7 +62,8 @@ Route::get('/run-migrations-fresh-seed', function () {
     return '<pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
 });
 
-Route::get('/run-seed', function () {
+Route::get('/run-seed', function () use ($noTimeLimit) {
+    $noTimeLimit();
     \Illuminate\Support\Facades\Artisan::call('db:seed', [
         '--force' => true,
     ]);

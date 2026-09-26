@@ -24,9 +24,14 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        // fakerphp/faker is a require-dev dependency; the fake() helper is only
+        // registered when Faker\Factory is present, so guard it rather than
+        // crashing with "Call to undefined function fake()" on --no-dev installs.
+        $faker = class_exists(\Faker\Factory::class) ? fake() : null;
+
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
+            'name' => $faker?->name() ?? 'Test User',
+            'email' => $faker?->unique()->safeEmail() ?? 'test@example.com',
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
