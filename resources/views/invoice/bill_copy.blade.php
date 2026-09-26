@@ -1,10 +1,24 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('page-title', 'Invoice - ' . ($order->order_id ?? ''))
 @section('page-subtitle', 'Official Invoice with customer details, item breakdown, and price summary.')
 
 @section('content')
     <style>
+        /* Standalone Invoice: Remove sidebar and topbar, display only invoice */
+        .sidebar, .topbar, .mobile-menu-btn {
+            display: none !important;
+        }
+        .main {
+            margin-left: 0 !important;
+            width: 100% !important;
+            min-height: 100vh !important;
+            background: #f4f6fb !important;
+        }
+        .content {
+            padding: 1.5rem 1rem 3rem !important;
+        }
+
         .bill-paper {
             background: #ffffff;
             border: 1px solid #dfe4ee;
@@ -522,11 +536,8 @@
         }
     </style>
 
-    <div class="d-flex justify-content-between align-items-center mb-3 no-print" style="max-width:900px;margin:0 auto 1rem;">
-        <a href="{{ route('invoice') }}" class="btn btn-outline-secondary btn-sm fw-semibold">
-            <i class="bi bi-arrow-left me-1"></i> Back to Invoices
-        </a>
-        <button type="button" class="btn btn-danger btn-sm fw-bold px-3" onclick="window.print()" style="background:#1554d1;border-color:#1554d1;">
+    <div class="d-flex justify-content-end align-items-center mb-3 no-print" style="max-width:900px;margin:0 auto 1rem;">
+        <button type="button" class="btn btn-primary btn-sm fw-bold px-3" onclick="window.print()" style="background:#1554d1;border-color:#1554d1;border-radius:8px;">
             <i class="bi bi-printer me-1"></i> Print Invoice
         </button>
     </div>
