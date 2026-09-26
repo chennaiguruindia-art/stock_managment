@@ -290,11 +290,11 @@
                     <div class="inv-section-label">Bill To</div>
                     <input type="text" name="customer_name" id="customerName" class="inv-cust-input"
                            value="{{ old('customer_name', $savedOrder->customer_name ?? '') }}"
-                           placeholder="Customer name" maxlength="100" autocomplete="off">
+                              placeholder="Customer name" maxlength="100" autocomplete="off" required>
                     <div class="mt-2">
                         <input type="text" name="customer_mobile" id="customerMobile" class="inv-cust-input"
                                value="{{ old('customer_mobile', $savedOrder->customer_mobile ?? '') }}"
-                               placeholder="Mobile number" maxlength="20" autocomplete="off">
+                               placeholder="Mobile number" maxlength="20" autocomplete="off" required>
                     </div>
                 </div>
                 <div style="font-size:.85rem;color:#66748b;">

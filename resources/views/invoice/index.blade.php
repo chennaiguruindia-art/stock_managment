@@ -47,8 +47,8 @@
                                 <td><span class="inv-recent-chip">{{ $order->order_id }}</span></td>
                                 <td>{{ $order->created_at->format('d M Y, h:i A') }}</td>
                                 <td>
-                                    <div class="fw-semibold">{{ $order->customer_name ?: 'Ms. Kavitha R' }}</div>
-                                    <div class="text-muted" style="font-size:.76rem;"><i class="bi bi-telephone me-1"></i>{{ $order->customer_mobile ?: '98765 43210' }}</div>
+                                    <div class="fw-semibold">{{ $order->customer_name ?: '—' }}</div>
+                                    <div class="text-muted" style="font-size:.76rem;"><i class="bi bi-telephone me-1"></i>{{ $order->customer_mobile ?: '—' }}</div>
                                 </td>
                                 <td>{{ $order->items->sum('qty') }} unit(s)</td>
                                 <td class="text-end fw-bold">₹{{ number_format($order->total, 2) }}</td>

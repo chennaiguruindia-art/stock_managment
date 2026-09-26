@@ -1,4 +1,4 @@
-@extends('layouts.app')
+﻿@extends('layouts.app')
 
 @section('page-title', 'Invoice - ' . ($order->order_id ?? ''))
 @section('page-subtitle', 'Official Invoice with customer details, item breakdown, and price summary.')
@@ -330,7 +330,7 @@
             gap: 0.5rem;
         }
         .terms-header::before, .terms-header::after {
-            content: "◆";
+            content: "â—†";
             font-size: 0.6rem;
             color: #1554d1;
         }
@@ -367,20 +367,104 @@
             text-transform: uppercase;
         }
 
+        /* Declaring an explicit @page rule is what stops Chrome printing its own
+           date / URL / "1 of 2" headers and footers - with no @page at all it
+           always adds them (verified in headless Chrome: 41500 bytes / 5 streams
+           without @page vs 17072 / 3 with). Zeroing the margin additionally gives
+           the bill the whole sheet instead of the default ~1cm borders. */
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
         @media print {
-            body * { visibility: hidden; }
-            .bill-paper, .bill-paper * { visibility: visible; }
-            .bill-paper {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%;
-                max-width: 100%;
-                border: 0;
-                box-shadow: none;
-                padding: 1rem;
+            html, body {
+                background: #fff !important;
+                width: auto !important;
+                height: auto !important;
             }
-            .no-print { display: none !important; }
+
+            /* display:none, not visibility:hidden: invisible elements still
+               reserve layout height and were what pushed this onto page 2. */
+            .sidebar, .topbar, .mobile-menu-btn, .no-print { display: none !important; }
+            .app { display: block !important; min-height: 0 !important; }
+            .main {
+                margin-left: 0 !important;
+                min-height: 0 !important;
+                display: block !important;
+            }
+            .content {
+                padding: 0 !important;
+                width: 100% !important;
+                min-width: 0 !important;
+            }
+
+            .bill-paper {
+                position: static !important;
+                box-sizing: border-box;
+                margin: 0 !important;
+                width: 210mm !important;
+                max-width: 210mm !important;
+                padding: 7mm 10mm !important;
+                border: 0 !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+            }
+
+            /* --- compact for paper ---------------------------------
+               On screen the bill is 1327px tall; an A4 sheet only has
+               1123px once @page margins are zeroed. These rules claw
+               back ~250px so the whole invoice lands on one page.
+               Screen styles are untouched. */
+            .bill-top-header { margin-bottom: 8px !important; gap: 0.8rem !important; }
+            .zyra-lotus { width: 38px !important; height: 28px !important; }
+            .zyra-title { font-size: 1.95rem !important; }
+            .zyra-tagline-sub { font-size: 0.66rem !important; margin-bottom: 0.1rem !important; }
+            .zyra-script { font-size: 1rem !important; }
+            .bill-badge-title {
+                font-size: 1.05rem !important;
+                padding: 0.28rem 1.3rem !important;
+                margin-bottom: 0.4rem !important;
+            }
+            .bill-meta-table { font-size: 0.76rem !important; }
+            .bill-meta-table td { padding: 0.06rem 0.35rem !important; }
+
+            .bill-cust-grid { gap: 0.6rem !important; margin-bottom: 8px !important; }
+            .cust-card { padding: 0.7rem 0.9rem !important; border-radius: 6px !important; }
+            .cust-card-title { font-size: 0.7rem !important; margin-bottom: 0.25rem !important; }
+            .cust-name { font-size: 0.88rem !important; }
+            .cust-address { font-size: 0.75rem !important; line-height: 1.3 !important; }
+            .cust-phone { font-size: 0.78rem !important; margin-top: 0.15rem !important; }
+
+            .bill-table { margin-bottom: 8px !important; font-size: 0.78rem !important; }
+            .bill-table th { font-size: 0.72rem !important; padding: 0.42rem 0.55rem !important; }
+            .bill-table td { padding: 0.55rem 0.6rem !important; }
+            .p-name-title { font-size: 0.82rem !important; }
+            .p-sub-detail, .p-fabric-detail { font-size: 0.7rem !important; }
+
+            .bill-summary-grid { gap: 0.6rem !important; margin-bottom: 8px !important; }
+            .summary-card { padding: 0.7rem 0.9rem !important; border-radius: 6px !important; }
+            .summary-card-title { font-size: 0.72rem !important; margin-bottom: 0.4rem !important; }
+            .price-row { font-size: 0.8rem !important; padding: 0.16rem 0 !important; }
+            .grand-total-row {
+                font-size: 0.92rem !important;
+                padding: 0.3rem 0.6rem !important;
+                margin: 0.3rem 0 !important;
+            }
+            .words-box { font-size: 0.74rem !important; margin-top: 0.3rem !important; }
+            .thankyou-title { font-size: 0.78rem !important; margin-bottom: 0.4rem !important; }
+            .social-link { font-size: 0.74rem !important; margin-bottom: 0.2rem !important; }
+            .qr-wrapper { margin-top: 0.35rem !important; }
+            .qr-img { width: 74px !important; height: 74px !important; }
+            .qr-caption { font-size: 0.66rem !important; }
+
+            .terms-card { padding: 0.7rem 1rem !important; margin-bottom: 6px !important; }
+            .terms-header { font-size: 0.7rem !important; margin-bottom: 0.3rem !important; }
+            .terms-grid { font-size: 0.7rem !important; }
+
+            .footer-script { margin-top: 4px !important; }
+            .footer-script .t-script { font-size: 1.1rem !important; }
+            .footer-script .t-sub { font-size: 0.62rem !important; }
         }
     </style>
 
@@ -400,9 +484,9 @@
         $orderDate = $order->created_at ? $order->created_at->format('d/m/Y') : date('d/m/Y');
 
         // Customer details fetched from DB!
-        $custName = $order->customer_name ?: 'Ms. Kavitha R';
-        $custPhone = $order->customer_mobile ?: '98765 43210';
-        $custAddress = '1st Floor, F 200, 1st St, Block F, Annanagar East, Chennai, Greater Chennai, Tamil Nadu 600102 Tamil Nadu, India';
+        $custName = $order->customer_name ?: 'â€”';
+        $custPhone = $order->customer_mobile ?: 'â€”';
+        $instagramUrl = 'https://www.instagram.com/' . ltrim($company['instagram'] ?? '@zyraofficial46', '@') . '/';
 
         // Calculate MRP and discount totals
         $totalMrp = 0;
@@ -501,7 +585,7 @@
                     </tr>
                     <tr>
                         <td class="lbl">Store</td>
-                        <td>: {{ $company['store_location'] ?? 'ZYRA Lifestyle – Chennai' }}</td>
+                        <td>: {{ $company['store_location'] ?? 'ZYRA Lifestyle â€“ Chennai' }}</td>
                     </tr>
                 </table>
             </div>
@@ -519,7 +603,6 @@
                 <div class="cust-card-title">SHIP TO</div>
                 <div class="cust-name">{{ $custName }}</div>
                 <div class="cust-phone">Phone : {{ $custPhone }}</div>
-                <div class="cust-address">Bangalore,Karnataka</div>
             </div>
         </div>
 
@@ -604,30 +687,14 @@
                 <div class="d-flex flex-column align-items-center">
                     <div class="social-link"><i class="bi bi-globe me-1 text-danger"></i> {{ $company['website'] ?? 'www.shopwithzyra.in' }}</div>
                     <div class="social-link"><i class="bi bi-envelope me-1 text-danger"></i> {{ $company['email'] ?? 'order@shopwithzyra.in' }}</div>
-                    <div class="social-link"><i class="bi bi-whatsapp me-1 text-success"></i> {{ $company['phone'] ?? '98841 25555' }}</div>
+                    <div class="social-link"><i class="bi bi-whatsapp me-1 text-success"></i> {{ $company['phone'] ?? '988487 5555' }}</div>
                     <div class="social-link"><i class="bi bi-instagram me-1 text-danger"></i> {{ $company['instagram'] ?? '@zyraofficial46' }}</div>
 
                     <div class="qr-wrapper">
-                        <!-- SVG / QR placeholder -->
-                        <div style="width:90px;height:90px;border:1px solid #dfe4ee;border-radius:6px;padding:4px;display:inline-block;background:#fff;">
-                            <svg viewBox="0 0 100 100" fill="#0e1726">
-                                <rect x="0" y="0" width="30" height="30"/>
-                                <rect x="5" y="5" width="20" height="20" fill="#fff"/>
-                                <rect x="10" y="10" width="10" height="10"/>
-                                <rect x="70" y="0" width="30" height="30"/>
-                                <rect x="75" y="5" width="20" height="20" fill="#fff"/>
-                                <rect x="80" y="10" width="10" height="10"/>
-                                <rect x="0" y="70" width="30" height="30"/>
-                                <rect x="5" y="75" width="20" height="20" fill="#fff"/>
-                                <rect x="10" y="80" width="10" height="10"/>
-                                <rect x="40" y="10" width="10" height="20"/>
-                                <rect x="40" y="40" width="20" height="10"/>
-                                <rect x="70" y="40" width="20" height="20"/>
-                                <rect x="40" y="70" width="20" height="20"/>
-                                <rect x="70" y="70" width="15" height="15"/>
-                            </svg>
-                        </div>
-                        <div class="qr-caption">SHOP WITH ZYRA</div>
+                        <a href="{{ $instagramUrl }}" target="_blank" rel="noopener noreferrer" aria-label="Open Instagram">
+                            <img src="{{ asset('qr/insta.png') }}" alt="Scan to visit Instagram" class="qr-img">
+                        </a>
+                        <div class="qr-caption">SCAN TO VISIT INSTAGRAM</div>
                     </div>
                 </div>
             </div>

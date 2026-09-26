@@ -16,7 +16,7 @@ return [
         'address_line1' => '1st Floor, F 200, 1st St, Block F, Annanagar East,',
         'address_line2' => 'Chennai - 600102',
         'address_line3' => 'Tamil Nadu, India',
-        'phone'         => '98841 25555',
+        'phone'         => '988487 5555',
         'email'         => 'order@shopwithzyra.in',
         'website'       => 'www.shopwithzyra.in',
         'instagram'     => '@zyraofficial46',

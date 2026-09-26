@@ -614,6 +614,11 @@ class MainController extends Controller
      */
     public function posCheckout(Request $request)
     {
+        $request->validate([
+            'customer_name' => 'required|string|max:100',
+            'customer_mobile' => 'required|string|max:20',
+        ]);
+
         $customerName = trim($request->input('customer_name') ?? '');
         $customerMobile = trim($request->input('customer_mobile') ?? '');
         $cart = $request->input('cart');
@@ -729,8 +734,8 @@ class MainController extends Controller
         $request->validate([
             'product_id' => 'required|integer|exists:addproducts,id',
             'quantity' => 'required|integer|min:1',
-            'customer_name' => 'nullable|string|max:100',
-            'customer_mobile' => 'nullable|string|max:20',
+            'customer_name' => 'required|string|max:100',
+            'customer_mobile' => 'required|string|max:20',
         ]);
 
         $product = Addproduct::find((int) $request->input('product_id'));

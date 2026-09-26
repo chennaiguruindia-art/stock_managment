@@ -4,9 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\indexController;
 use App\Http\Controllers\MainController;
 
-
-
-
 Route::get('/', [indexController::class, 'dashboard'])->name('dashboard');
 Route::get('/dashboard', [indexController::class, 'dashboard']);
 Route::get('/add-product', [indexController::class, 'add_product'])->name('add_product');

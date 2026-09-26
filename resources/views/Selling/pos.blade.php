@@ -576,10 +576,10 @@
 
                         <div class="row g-2 mb-2">
                             <div class="col-6">
-                                <input type="text" name="customer_name" class="form-control form-control-sm" placeholder="Customer Name (opt)" style="border-radius:8px;">
+                                <input type="text" name="customer_name" class="form-control form-control-sm" placeholder="Customer Name" maxlength="100" value="{{ old('customer_name') }}" style="border-radius:8px;" required>
                             </div>
                             <div class="col-6">
-                                <input type="text" name="customer_mobile" class="form-control form-control-sm" placeholder="Mobile No (opt)" style="border-radius:8px;">
+                                <input type="text" name="customer_mobile" class="form-control form-control-sm" placeholder="Mobile No" maxlength="20" value="{{ old('customer_mobile') }}" style="border-radius:8px;" required>
                             </div>
                         </div>
 
@@ -690,9 +690,8 @@
             $formattedInvoiceNo = $invoicePrefix . str_pad($lastOrder->id, 6, '0', STR_PAD_LEFT);
             $orderDate = $lastOrder->created_at ? $lastOrder->created_at->format('d/m/Y') : date('d/m/Y');
 
-            $custName = $lastOrder->customer_name ?: 'Ms. Kavitha R';
-            $custPhone = $lastOrder->customer_mobile ?: '98765 43210';
-            $custAddress = '1st Floor, F 200, 1st St, Block F, Annanagar East, Chennai, Greater Chennai, Tamil Nadu 600102 Tamil Nadu, India';
+            $custName = $lastOrder->customer_name ?: '—';
+            $custPhone = $lastOrder->customer_mobile ?: '—';
 
             $totalMrp = 0;
             $totalDiscount = 0;
