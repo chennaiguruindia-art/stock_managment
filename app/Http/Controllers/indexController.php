@@ -205,6 +205,43 @@ class indexController extends Controller
         return view('invoice.index', compact('products', 'recentInvoices'));
     }
 
+    public function customer_invoices(Request $request)
+    {
+        $mobile = trim((string) $request->input('mobile', ''));
+        $searched = $request->filled('mobile');
+        $orders = collect();
+        $customerName = null;
+        $totalSpend = 0;
+        $totalOrders = 0;
+
+        if ($mobile !== '') {
+            $digits = preg_replace('/\D/', '', $mobile);
+
+            $orders = Order::with('items.product')
+                ->where(function ($query) use ($mobile, $digits) {
+                    $query->where('customer_mobile', 'like', "%{$mobile}%");
+                    if ($digits !== '') {
+                        $query->orWhere('customer_mobile', 'like', "%{$digits}%");
+                    }
+                })
+                ->orderByDesc('id')
+                ->get();
+
+            $totalOrders = $orders->count();
+            $totalSpend = (float) $orders->sum('total');
+            $customerName = $orders->firstWhere('customer_name', '!=', null)?->customer_name;
+        }
+
+        return view('invoice.customer_invoices', compact(
+            'mobile',
+            'searched',
+            'orders',
+            'customerName',
+            'totalSpend',
+            'totalOrders'
+        ));
+    }
+
     public function invoice_detail(Request $request, Addproduct $product)
     {
         $nextInvoiceNo = Order::nextOrderId();

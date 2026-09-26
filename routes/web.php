@@ -25,6 +25,8 @@ Route::get('/return-product', [indexController::class, 'return_product'])->name(
 Route::post('/return-product/process', [MainController::class, 'processReturn'])->name('return_process');
 Route::get('/sell-pos', [indexController::class, 'sell_pos'])->name('sell_pos');
 Route::get('/invoice', [indexController::class, 'invoices'])->name('invoice');
+Route::get('/customer-invoices', [indexController::class, 'customer_invoices'])->name('customer_invoices');
+Route::get('/invoice-search', [indexController::class, 'customer_invoices'])->name('invoice_search');
 Route::get('/invoice/{product}', [indexController::class, 'invoice_detail'])->name('invoice_detail');
 Route::get('/invoice/order/{orderId}', [indexController::class, 'view_order_invoice'])->name('view_order_invoice');
 Route::post('/invoice/store', [MainController::class, 'invoice_store'])->name('invoice_store');
