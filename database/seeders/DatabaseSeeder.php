@@ -15,6 +15,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Standalone, individually sellable dupatta (Rs.300).
+        $this->call(DupattaProductSeeder::class);
+
         // User::factory(10)->create();
 
         User::factory()->create([

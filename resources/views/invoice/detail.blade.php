@@ -7,10 +7,10 @@
     <style>
         .invoice-sheet {
             background: #ffffff;
-            border: 1px solid #e8dfd8;
-            border-radius: 18px;
-            box-shadow: 0 14px 34px rgba(36, 25, 35, .06);
-            padding: 2rem 2.25rem;
+            border: 1px solid var(--border, #dfe4ee);
+            border-radius: var(--radius, 10px);
+            box-shadow: 0 1px 3px rgba(16, 24, 40, .07);
+            padding: 1.75rem 2rem;
             max-width: 860px;
             margin: 0 auto;
         }
@@ -20,53 +20,52 @@
             justify-content: space-between;
             gap: 1.5rem;
             flex-wrap: wrap;
-            border-bottom: 2px solid #6b1f2a;
-            padding-bottom: 1.1rem;
+            border-bottom: 2px solid #0f1f36;
+            padding-bottom: 1rem;
         }
 
         .inv-company-name {
-            font-size: 1.45rem;
+            font-size: 1.3rem;
             font-weight: 800;
-            color: #400000;
+            color: #0f1f36;
             margin: 0;
-            letter-spacing: -.01em;
+            letter-spacing: -.015em;
         }
 
         .inv-company-meta {
-            font-size: .82rem;
-            color: #7a6f6b;
+            font-size: .8rem;
+            color: var(--muted, #66748b);
             line-height: 1.55;
             margin-top: .3rem;
         }
 
-        .inv-doc-badge {
-            text-align: right;
-        }
+        .inv-doc-badge { text-align: right; }
 
         .inv-doc-title {
-            font-size: 1.6rem;
+            font-size: 1.35rem;
             font-weight: 800;
-            letter-spacing: .28em;
-            color: #6b1f2a;
+            letter-spacing: .24em;
+            color: var(--accent, #1554d1);
             text-transform: uppercase;
         }
 
         .inv-doc-chip {
             font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
             font-weight: 700;
-            color: #6b1f2a;
-            background: #f3e2e3;
-            border-radius: 8px;
-            padding: .25rem .6rem;
+            color: var(--accent-strong, #1043a8);
+            background: var(--accent-soft, #e7eefe);
+            border: 1px solid #cdddfb;
+            border-radius: 6px;
+            padding: .22rem .55rem;
             display: inline-block;
-            font-size: .95rem;
+            font-size: .9rem;
         }
 
         .inv-section-label {
-            font-size: .72rem;
+            font-size: .68rem;
             letter-spacing: .14em;
             text-transform: uppercase;
-            color: #9c8f92;
+            color: #94a3b8;
             font-weight: 700;
             margin-bottom: .35rem;
         }
@@ -76,42 +75,44 @@
             justify-content: space-between;
             gap: 1.5rem;
             flex-wrap: wrap;
-            padding: 1.15rem 0;
+            padding: 1.1rem 0;
+            border-bottom: 1px solid var(--border, #dfe4ee);
         }
 
         .inv-cust-input {
             border: 0;
-            border-bottom: 1px dashed #cfc5c9;
+            border-bottom: 1px dashed var(--border-strong, #c5cede);
             background: transparent;
             padding: .3rem .15rem;
             font-weight: 600;
             width: 100%;
             max-width: 300px;
-            font-size: .95rem;
+            font-size: .93rem;
         }
 
-        .inv-cust-input:focus { outline: none; border-bottom-color: #6b1f2a; }
+        .inv-cust-input:focus { outline: none; border-bottom-color: var(--accent, #1554d1); }
 
         .inv-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: .4rem;
-            font-size: .9rem;
+            margin-top: .9rem;
+            font-size: .88rem;
         }
 
         .inv-table th {
-            background: linear-gradient(120deg, #2a000a, #6b1f2a);
+            background: #0f1f36;
             color: #fff;
-            padding: .65rem .75rem;
+            padding: .6rem .7rem;
             text-align: left;
-            font-size: .74rem;
+            font-size: .7rem;
             letter-spacing: .08em;
             text-transform: uppercase;
+            font-weight: 700;
         }
 
         .inv-table td {
-            padding: .8rem .75rem;
-            border-bottom: 1px solid #efe9ea;
+            padding: .8rem .7rem;
+            border-bottom: 1px solid var(--border, #dfe4ee);
             vertical-align: middle;
         }
 
@@ -119,30 +120,34 @@
             margin-left: auto;
             width: 320px;
             max-width: 100%;
-            margin-top: 1.1rem;
-            font-size: .92rem;
+            margin-top: 1rem;
+            font-size: .9rem;
         }
 
         .inv-total-row {
             display: flex;
             justify-content: space-between;
-            padding: .32rem .1rem;
-            color: #7a6f6b;
+            padding: .3rem .1rem;
+            color: var(--muted, #66748b);
         }
+
+        .inv-total-row b { color: var(--text, #0e1726); font-variant-numeric: tabular-nums; }
 
         .inv-grand {
-            border-top: 2px solid #6b1f2a;
+            border-top: 2px solid var(--accent, #1554d1);
             margin-top: .4rem;
             padding-top: .55rem !important;
-            font-size: 1.22rem;
+            font-size: 1.18rem;
             font-weight: 800;
-            color: #400000;
+            color: var(--text, #0e1726);
         }
 
+        .inv-grand span:last-child { color: var(--accent, #1554d1); font-variant-numeric: tabular-nums; }
+
         .inv-words {
-            font-size: .85rem;
+            font-size: .83rem;
             font-style: italic;
-            color: #7a6f6b;
+            color: var(--muted, #66748b);
             margin-top: .8rem;
         }
 
@@ -152,57 +157,57 @@
             align-items: flex-end;
             gap: 1.5rem;
             flex-wrap: wrap;
-            border-top: 1px dashed #d8cfd3;
-            margin-top: 1.6rem;
+            border-top: 1px dashed var(--border-strong, #c5cede);
+            margin-top: 1.5rem;
             padding-top: 1rem;
-            font-size: .8rem;
-            color: #7a6f6b;
+            font-size: .78rem;
+            color: var(--muted, #66748b);
         }
 
-        .inv-sign {
-            text-align: center;
-            min-width: 200px;
-        }
+        .inv-sign { text-align: center; min-width: 200px; }
 
         .inv-sign .line {
-            border-top: 1px solid #b9adb1;
+            border-top: 1px solid var(--border-strong, #c5cede);
             margin-top: 3.2rem;
             padding-top: .3rem;
             font-weight: 700;
-            color: #400000;
+            color: #0f1f36;
         }
 
         .qty-stepper {
             display: inline-flex;
             align-items: center;
-            border: 1px solid #e5e2dc;
-            border-radius: 10px;
+            border: 1px solid var(--border-strong, #c5cede);
+            border-radius: 8px;
             overflow: hidden;
-            background: #fbfaf8;
+            background: #fff;
         }
         .qty-stepper button {
             border: 0;
-            background: transparent;
+            background: var(--surface-2, #f7f9fc);
             width: 30px;
             height: 32px;
             font-size: 1rem;
             font-weight: 700;
-            color: #6b1f2a;
+            color: var(--accent, #1554d1);
             cursor: pointer;
         }
-        .qty-stepper button:hover { background: #f3e2e3; }
+        .qty-stepper button:hover { background: var(--accent-soft, #e7eefe); }
         .qty-stepper input {
             width: 56px;
             border: 0;
+            border-left: 1px solid var(--border, #dfe4ee);
+            border-right: 1px solid var(--border, #dfe4ee);
             text-align: center;
             font-weight: 700;
             font-size: .9rem;
             height: 32px;
             background: #fff;
+            font-variant-numeric: tabular-nums;
         }
         .qty-stepper input:focus { outline: none; }
 
-        .mrp-strike { text-decoration: line-through; color: #b3a7ab; font-size: .8rem; }
+        .mrp-strike { text-decoration: line-through; color: #94a3b8; font-size: .8rem; }
 
         .print-show { display: none; }
 
@@ -228,12 +233,12 @@
     @include('layouts.alerts')
 
     <div class="d-flex justify-content-between align-items-center mb-3 no-print">
-        <a href="{{ route('invoice') }}" class="text-decoration-none fw-semibold" style="color:#6b1f2a;">
+        <a href="{{ route('invoice') }}" class="text-decoration-none fw-semibold" style="color:var(--accent);">
             <i class="bi bi-arrow-left me-1"></i> Back to products
         </a>
         <div class="d-flex gap-2">
             @if (isset($savedOrder))
-                <a href="{{ route('view_order_invoice', $savedOrder->order_id) }}" class="btn btn-danger" style="background:#c25b6c;border-color:#c25b6c;font-weight:700;">
+                <a href="{{ route('view_order_invoice', $savedOrder->order_id) }}" class="btn fw-semibold" style="background:#0f1f36;border-color:#0f1f36;color:#fff;">
                     <i class="bi bi-receipt-cutoff me-1"></i> View Official Invoice
                 </a>
             @endif
@@ -272,7 +277,7 @@
                         <span class="inv-section-label">Invoice No.</span><br>
                         <span class="inv-doc-chip">{{ $savedOrder->order_id ?? $nextInvoiceNo }}</span>
                     </div>
-                    <div class="mt-2" style="font-size:.85rem;color:#7a6f6b;">
+                    <div class="mt-2" style="font-size:.85rem;color:#66748b;">
                         <span class="inv-section-label">Date</span><br>
                         {{ ($savedOrder?->created_at ?? now())->format('d M Y, h:i A') }}
                     </div>
@@ -292,7 +297,7 @@
                                placeholder="Mobile number" maxlength="20" autocomplete="off">
                     </div>
                 </div>
-                <div style="font-size:.85rem;color:#7a6f6b;">
+                <div style="font-size:.85rem;color:#66748b;">
                     <div class="inv-section-label">Product status</div>
                     Available stock: <b class="{{ $product->stock > 0 ? 'text-success' : 'text-danger' }}">{{ $product->stock }} unit(s)</b><br>
                     Payment mode: <b>Cash / Card at counter</b><br>
@@ -367,7 +372,7 @@
                     {{ config('invoice.invoice.footer_note') }}
                 </div>
                 <div class="inv-sign">
-                    <div class="line">For {{ config('invoice.company.name') }}<br><span style="font-weight:500;font-size:.72rem;color:#9c8f92;">Authorised Signatory</span></div>
+                    <div class="line">For {{ config('invoice.company.name') }}<br><span style="font-weight:500;font-size:.72rem;color:#94a3b8;">Authorised Signatory</span></div>
                 </div>
             </div>
         </div>
@@ -379,7 +384,7 @@
                     <i class="bi bi-exclamation-triangle me-1"></i> This product is out of stock — restock before invoicing.
                 </div>
             @else
-                <button type="submit" class="btn btn-lg px-5 text-white" style="background:linear-gradient(135deg,#6b1f2a,#8c2e3d);border:0;border-radius:12px;font-weight:800;box-shadow:0 6px 18px rgba(107,31,42,.25);">
+                <button type="submit" class="btn btn-lg px-5 text-white" style="background:var(--accent);border:0;border-radius:8px;font-weight:700;box-shadow:0 3px 10px rgba(21,84,209,.28);">
                     <i class="bi bi-save me-2"></i>Save Invoice
                 </button>
                 <div class="text-muted mt-2" style="font-size:.82rem;">

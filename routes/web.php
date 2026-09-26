@@ -37,3 +37,22 @@ Route::get('/sales-history', [indexController::class, 'sales_history'])->name('s
 Route::get('/report', [indexController::class, 'report'])->name('report');
 Route::get('/logout', [indexController::class, 'logout'])->name('logout');
 
+Route::get('/run-migrations', function () {
+\Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+return '<pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
+});
+
+Route::get('/run-migrations-fresh-seed', function () {
+    \Illuminate\Support\Facades\Artisan::call('migrate:fresh', [
+        '--seed' => true,
+        '--force' => true,
+    ]);
+    return '<pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
+});
+
+Route::get('/run-seed', function () {
+    \Illuminate\Support\Facades\Artisan::call('db:seed', [
+        '--force' => true,
+    ]);
+    return '<pre>' . \Illuminate\Support\Facades\Artisan::output() . '</pre>';
+});

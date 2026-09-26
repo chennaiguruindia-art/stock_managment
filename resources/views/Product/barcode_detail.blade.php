@@ -8,17 +8,17 @@
         .bc-page { max-width: 760px; margin: 0 auto; }
         .bc-card {
             background: #fff;
-            border: 1px solid var(--line, #ece6e0);
-            border-radius: 22px;
-            box-shadow: 0 18px 50px rgba(64, 0, 0, 0.10);
-            padding: 2rem;
+            border: 1px solid var(--line, #dfe4ee);
+            border-radius: var(--radius, 10px);
+            box-shadow: 0 1px 2px rgba(16, 24, 40, .05);
+            padding: 1.5rem;
         }
         .bc-box {
             background: #fff;
-            border: 1px solid #ece6e0;
-            border-radius: 14px;
+            border: 1px solid var(--line, #dfe4ee);
+            border-radius: var(--radius, 10px);
             padding: 1.4rem 1.2rem;
-            box-shadow: 0 8px 24px rgba(64, 0, 0, 0.06);
+            box-shadow: var(--shadow, 0 1px 2px rgba(16, 24, 40, .05));
             text-align: center;
         }
         .bc-box img {
@@ -28,41 +28,49 @@
         .bc-cap {
             margin-top: .7rem;
             font-family: ui-monospace, Consolas, monospace;
-            font-size: 1.05rem;
+            font-size: 1.02rem;
             font-weight: 700;
             letter-spacing: .08em;
-            color: var(--accent);
+            color: var(--accent, #1554d1);
         }
         .bc-url {
             margin-top: 1rem;
             padding: .6rem .8rem;
-            background: #f8f5f2;
-            border: 1px dashed #d8cdc4;
-            border-radius: 10px;
+            background: var(--surface-2, #f7f9fc);
+            border: 1px dashed var(--border-strong, #c5cede);
+            border-radius: 8px;
             font-size: .78rem;
-            color: var(--muted);
+            color: var(--muted, #66748b);
             word-break: break-all;
             text-align: center;
         }
-        .bc-meta { font-size: .9rem; }
-        .bc-meta th { width: 140px; font-weight: 600; color: var(--muted); }
-        .bc-meta td { font-weight: 600; }
+        .bc-meta { font-size: .875rem; margin-bottom: 0; }
+        .bc-meta th {
+            width: 140px;
+            font-weight: 600;
+            color: var(--muted, #66748b);
+            background: var(--surface-2, #f7f9fc);
+            border-top: 1px solid var(--line, #dfe4ee);
+            padding: .55rem .7rem;
+        }
+        .bc-meta td { font-weight: 600; border-top: 1px solid var(--line, #dfe4ee); padding: .55rem .7rem; }
         .bc-barcode {
             font-family: ui-monospace, Consolas, monospace;
-            background: #f2f0ec;
+            background: var(--surface-3, #eaeff7);
+            border: 1px solid var(--line, #dfe4ee);
             border-radius: 6px;
-            padding: .2rem .5rem;
+            padding: .18rem .45rem;
         }
         .btn-bc {
-            border: 1px solid var(--line, #ece6e0);
+            border: 1px solid var(--border-strong, #c5cede);
             background: #fff;
-            color: var(--text);
+            color: var(--text, #0e1726);
             font-weight: 600;
-            border-radius: 12px;
-            padding: .6rem 1.4rem;
+            border-radius: 8px;
+            padding: .55rem 1.3rem;
         }
-        .btn-bc:hover { background: var(--soft, #f7f4f1); }
-        .btn-bc i { color: var(--accent); }
+        .btn-bc:hover { background: var(--surface-2, #f7f9fc); color: var(--text, #0e1726); }
+        .btn-bc i { color: var(--accent, #1554d1); }
         @media print {
             .sidebar, .topbar, .bc-actions, .btn-bc { display: none !important; }
             .main { margin-left: 0 !important; }
@@ -89,7 +97,7 @@
                 </div>
             @endif
 
-            <hr class="my-4" style="border-color: var(--line, #ece6e0);">
+            <hr class="my-4" style="border-color: var(--line, #dfe4ee);">
 
             <table class="table bc-meta mb-0">
                 <tbody>
@@ -126,7 +134,7 @@
                 </tbody>
             </table>
 
-            <div class="d-flex flex-wrap gap-2 mt-4 pt-3 border-top bc-actions" style="border-color: var(--line, #ece6e0)!important;">
+            <div class="d-flex flex-wrap gap-2 mt-4 pt-3 border-top bc-actions" style="border-color: var(--line, #dfe4ee)!important;">
                 <button type="button" class="btn btn-bc" onclick="window.print()">
                     <i class="bi bi-printer me-1"></i> Print barcode
                 </button>

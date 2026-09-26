@@ -17,6 +17,11 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class MainController extends Controller
 {
+    /**
+     * Flat amount removed from selling_price when a dupatta product is sold without it.
+     */
+    public const DUPATTA_DISCOUNT = 300;
+
     public function add_product(Request $request)
     {
         $result = $this->createProductFromData($request->all());
@@ -125,6 +130,10 @@ class MainController extends Controller
         $mrp = $sanitizeDecimal($data['mrp'] ?? null);
         $sellingPrice = $sanitizeDecimal($data['selling_price'] ?? null);
         $discountAmount = $sanitizeDecimal($data['discount_amount'] ?? null);
+        $dupattaDiscount = $sanitizeDecimal($data['dupatta_discount'] ?? null);
+        if ($dupattaDiscount === null || $dupattaDiscount === '') {
+            $dupattaDiscount = (string) self::DUPATTA_DISCOUNT;
+        }
 
         Addproduct::create([
             'product_name' => $productName,
@@ -142,6 +151,8 @@ class MainController extends Controller
             'selling_price' => $sellingPrice === null ? null : (float) $sellingPrice,
             'discount_amount' => $discountAmount === null ? null : (float) $discountAmount,
             'description' => $data['description'] ?? null,
+            'has_dupatta' => $this->toBool($data['has_dupatta'] ?? false),
+            'dupatta_discount' => max((float) $dupattaDiscount, 0),
         ]);
 
         // Keep the brand row in sync with the latest product's identifiers,
@@ -175,24 +186,24 @@ class MainController extends Controller
 
         $headers = [
             'brand', 'product_name', 'product_type', 'color', 'size', 'stock',
-            'original_price', 'mrp', 'selling_price', 'barcode', 'description',
+            'original_price', 'mrp', 'selling_price', 'barcode', 'description', 'has_dupatta', 'dupatta_discount',
         ];
         $sheet->fromArray($headers, null, 'A1');
 
         // Bold the header row.
-        $sheet->getStyle('A1:K1')->getFont()->setBold(true);
-        $sheet->getStyle('A1:K1')->getFill()
+        $sheet->getStyle('A1:M1')->getFont()->setBold(true);
+        $sheet->getStyle('A1:M1')->getFill()
             ->setFillType(Fill::FILL_SOLID)
             ->getStartColor()->setARGB('F3E2E3');
 
         // A single example row so users can see the expected format.
         $example = [
             'Zyra', 'Chudi', 'Short Kurthi ', 'Red', 'M', 10,
-            799, 999, 699, '', 'Example row - delete before uploading your data.',
+            799, 999, 699, '', 'Example row - delete before uploading your data.', 'Yes', 300,
         ];
         $sheet->fromArray($example, null, 'A2');
 
-        foreach (range('A', 'K') as $col) {
+        foreach (range('A', 'M') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
@@ -209,11 +220,11 @@ class MainController extends Controller
     {
         $headers = [
             'brand', 'product_name', 'product_type', 'color', 'size', 'stock',
-            'original_price', 'mrp', 'selling_price', 'barcode', 'description',
+            'original_price', 'mrp', 'selling_price', 'barcode', 'description', 'has_dupatta', 'dupatta_discount',
         ];
         $example = [
             'Zyra', 'Chudi', 'Short Kurthi ', 'Red', 'M', 10,
-            799, 999, 699, '', 'Example row - delete before uploading your data.',
+            799, 999, 699, '', 'Example row - delete before uploading your data.', 'Yes', 300,
         ];
 
         $handle = fopen('php://temp', 'r+');
@@ -314,6 +325,8 @@ class MainController extends Controller
                 'selling_price' => $this->cellValue($values, ['selling_price', 'selling price', 'price']),
                 'barcode' => $this->cellValue($values, ['barcode']),
                 'description' => $this->cellValue($values, ['description']),
+                'has_dupatta' => $this->cellValue($values, ['has_dupatta', 'has dupatta', 'dupatta']),
+                'dupatta_discount' => $this->cellValue($values, ['dupatta_discount', 'dupatta discount', 'dupatta reduction']),
             ];
 
             // Skip fully-blank rows.
@@ -363,6 +376,22 @@ class MainController extends Controller
         }
 
         return null;
+    }
+
+    /**
+     * Interpret a form/spreadsheet boolean ("1", "true", "yes", "y", "on").
+     */
+    private function toBool(mixed $value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+        if (is_numeric($value)) {
+            return (int) $value === 1;
+        }
+        $value = strtolower(trim((string) $value));
+
+        return in_array($value, ['1', 'true', 'yes', 'y', 'on'], true);
     }
 
     /**
@@ -576,6 +605,7 @@ class MainController extends Controller
             'barcode' => $product->barcode,
             'stock' => (int) $product->stock,
             'price' => $price,
+            'has_dupatta' => (bool) $product->has_dupatta,
         ]);
     }
 
@@ -600,18 +630,43 @@ class MainController extends Controller
         $items = [];
         $total = 0;
 
+        // The same product can appear twice (with dupatta / without dupatta),
+        // so stock is checked against the combined quantity per product.
+        $qtyByProduct = [];
+        $validRows = [];
         foreach ($cart as $row) {
             $product = Addproduct::find($row['id'] ?? null);
             if (! $product) {
                 continue;
             }
             $qty = max(1, (int) ($row['qty'] ?? 1));
+            $qtyByProduct[$product->id] = ($qtyByProduct[$product->id] ?? 0) + $qty;
+            $validRows[] = [$product, $qty, $row];
+        }
 
-            if ($qty > (int) $product->stock) {
+        foreach ($qtyByProduct as $productId => $totalQty) {
+            $product = Addproduct::find($productId);
+            if ($product && $totalQty > (int) $product->stock) {
                 return redirect()->back()->with('error', "Insufficient stock for {$product->product_name}.");
+            }
+        }
+
+        foreach ($validRows as [$product, $qty, $row]) {
+            // 'with' charges full price, 'without' drops that product's own
+            // dupatta reduction (fallback: the global DUPATTA_DISCOUNT).
+            $dupatta = $row['dupatta'] ?? null;
+            $dupatta = in_array($dupatta, ['with', 'without'], true) ? $dupatta : null;
+            if (! $product->has_dupatta) {
+                $dupatta = null;
             }
 
             $price = (float) $product->selling_price;
+            if ($dupatta === 'without') {
+                $reduction = $product->dupatta_discount;
+                $reduction = $reduction === null ? self::DUPATTA_DISCOUNT : (float) $reduction;
+                $price = max($price - $reduction, 0);
+            }
+
             $lineTotal = round($price * $qty, 2);
             $total += $lineTotal;
 
@@ -623,6 +678,7 @@ class MainController extends Controller
                 'price' => $price,
                 'qty' => $qty,
                 'total' => $lineTotal,
+                'dupatta' => $dupatta,
             ];
         }
 

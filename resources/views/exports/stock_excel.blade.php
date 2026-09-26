@@ -1,5 +1,5 @@
 <table border="1" cellspacing="0" cellpadding="4">
-    <tr style="background:#6b1f2a;color:#ffffff;">
+    <tr style="background:#0f1f36;color:#ffffff;">
         <th>ID</th>
         <th>Product</th>
         <th>Brand</th>

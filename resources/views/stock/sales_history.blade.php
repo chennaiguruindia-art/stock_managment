@@ -6,44 +6,85 @@
 @section('content')
     <style>
         .sh-stat {
-            border-radius: 18px;
-            padding: 1.1rem 1.3rem;
-            color: #fff;
+            --tone: var(--accent, #1554d1);
+            --tone-soft: var(--accent-soft, #e7eefe);
+            background: #fff;
+            border: 1px solid var(--border, #dfe4ee);
+            border-radius: var(--radius, 10px);
+            padding: 1rem 1.1rem;
+            color: var(--text, #0e1726);
             position: relative;
             overflow: hidden;
-            box-shadow: 0 10px 22px rgba(15, 14, 15, .1);
+            box-shadow: 0 1px 2px rgba(16, 24, 40, .05);
+        }
+        .sh-stat::before {
+            content: "";
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: var(--tone);
         }
         .sh-stat .icon {
             position: absolute;
-            right: -10px;
-            bottom: -10px;
-            font-size: 3.8rem;
-            opacity: .18;
+            right: 14px;
+            top: 14px;
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .95rem;
+            border-radius: 8px;
+            background: var(--tone-soft);
+            color: var(--tone);
+            opacity: 1;
             line-height: 1;
         }
-        .sh-stat .label { font-size: .75rem; text-transform: uppercase; letter-spacing: .12em; opacity: .85; }
-        .sh-stat .value { font-size: 1.85rem; font-weight: 800; line-height: 1.2; }
-        .sh-orders { background: linear-gradient(135deg, #2e2740, #4a3b68); }
-        .sh-revenue { background: linear-gradient(135deg, #16794c, #2bb673); }
-        .sh-avg { background: linear-gradient(135deg, #6b1f2a, #a44454); }
-        .sh-items { background: linear-gradient(135deg, #c07d10, #e6a23c); }
+        .sh-stat .label {
+            font-size: .66rem;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            font-weight: 700;
+            color: var(--muted, #66748b);
+        }
+        .sh-stat .value {
+            font-size: 1.6rem;
+            font-weight: 800;
+            line-height: 1.2;
+            color: var(--text, #0e1726);
+            margin-top: .25rem;
+            font-variant-numeric: tabular-nums;
+        }
+        .sh-orders { --tone: #1554d1; --tone-soft: #e7eefe; }
+        .sh-revenue{ --tone: #0f9d58; --tone-soft: #e4f7ec; }
+        .sh-avg    { --tone: #7c3aed; --tone-soft: #f0eafe; }
+        .sh-items  { --tone: #d97706; --tone-soft: #fdf1e2; }
 
         .order-chip {
             font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
             font-weight: 700;
-            color: #6b1f2a;
-            background: #f3e2e3;
-            border-radius: 8px;
-            padding: .25rem .55rem;
+            font-size: .78rem;
+            color: var(--accent-strong, #1043a8);
+            background: var(--accent-soft, #e7eefe);
+            border: 1px solid #cdddfb;
+            border-radius: 6px;
+            padding: .2rem .5rem;
         }
 
         .expand-btn {
             border: 0;
-            background: transparent;
-            color: #6b1f2a;
+            background: var(--surface-3, #eaeff7);
+            color: var(--accent, #1554d1);
             cursor: pointer;
-            font-size: 1rem;
+            font-size: .8rem;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
+        .expand-btn:hover { background: var(--accent-soft, #e7eefe); }
     </style>
 
     @include('layouts.alerts')

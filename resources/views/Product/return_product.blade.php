@@ -1,4 +1,4 @@
-﻿@extends('layouts.app')
+@extends('layouts.app')
 
 @section('page-title', 'Return product')
 @section('page-subtitle', 'Search an invoice and return purchased items back to stock.')
@@ -8,28 +8,30 @@
         .order-chip {
             font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
             font-weight: 700;
-            color: #6b1f2a;
-            background: #f3e2e3;
-            border-radius: 8px;
-            padding: .25rem .55rem;
+            font-size: .78rem;
+            color: var(--accent-strong, #1043a8);
+            background: var(--accent-soft, #e7eefe);
+            border: 1px solid #cdddfb;
+            border-radius: 6px;
+            padding: .2rem .5rem;
         }
 
         .btn-return {
-            background: linear-gradient(135deg, #6b1f2a, #a44454);
+            background: var(--accent, #1554d1);
             color: #fff;
             border: 0;
-            border-radius: 10px;
+            border-radius: 8px;
             padding: .4rem .9rem;
             font-weight: 600;
             font-size: .85rem;
         }
-        .btn-return:hover { color: #fff; filter: brightness(1.08); }
+        .btn-return:hover { color: #fff; background: var(--accent-strong, #1043a8); }
     </style>
 
     @include('layouts.alerts')
 
     @if ($notFound)
-        <div class="alert alert-danger py-2 px-3 mb-3" style="border-radius:14px;">
+        <div class="alert alert-danger py-2 px-3 mb-3" style="border-radius:10px;">
             <i class="bi bi-search me-2"></i>No order found for invoice "{{ $invoice }}".
         </div>
     @endif
@@ -165,10 +167,10 @@
     <!-- Return Modal -->
     <div class="modal fade" id="returnModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-radius:18px; border:0; box-shadow:0 24px 60px rgba(36,25,35,.25);">
-                <div class="modal-header" style="background:linear-gradient(120deg,#2a000a,#6b1f2a); color:#fff; border-radius:18px 18px 0 0;">
+                <div class="modal-content">
+                <div class="modal-header">
                     <h5 class="modal-title"><i class="bi bi-arrow-return-left me-2"></i>Return item</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form method="POST" action="{{ route('return_process') }}" id="returnForm">
                     @csrf

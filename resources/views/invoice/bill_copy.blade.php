@@ -7,13 +7,13 @@
     <style>
         .bill-paper {
             background: #ffffff;
-            border: 1px solid #f0d5da;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(184, 82, 104, 0.08);
-            padding: 2.2rem 2.5rem;
+            border: 1px solid #dfe4ee;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(16, 24, 40, .07);
+            padding: 2rem 2.25rem;
             max-width: 900px;
             margin: 0 auto;
-            color: #2c2224;
+            color: #0e1726;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             position: relative;
         }
@@ -34,14 +34,14 @@
             width: 52px;
             height: 38px;
             display: inline-block;
-            color: #c25b6c;
+            color: #1554d1;
         }
 
         .zyra-title {
             font-size: 2.3rem;
             font-weight: 800;
             letter-spacing: 0.15em;
-            color: #c25b6c;
+            color: #1554d1;
             line-height: 1;
             margin: 0.2rem 0 0.1rem;
             font-family: 'Georgia', serif;
@@ -56,20 +56,20 @@
             font-size: 0.78rem;
             letter-spacing: 0.42em;
             text-transform: uppercase;
-            color: #4a3b3d;
+            color: #475569;
             font-weight: 600;
             margin-bottom: 0.3rem;
         }
 
         .zyra-script {
             font-family: 'Brush Script MT', 'Pacifico', cursive, sans-serif;
-            color: #d97787;
+            color: #4d86e8;
             font-size: 1.25rem;
             margin: 0.2rem 0;
         }
 
         .zyra-divider {
-            color: #c25b6c;
+            color: #1554d1;
             font-size: 0.75rem;
             display: flex;
             align-items: center;
@@ -81,7 +81,7 @@
             display: inline-block;
             width: 40px;
             height: 1px;
-            background: #c25b6c;
+            background: #1554d1;
         }
 
         .bill-badge-wrapper {
@@ -89,7 +89,7 @@
         }
 
         .bill-badge-title {
-            background: #c25b6c;
+            background: #1554d1;
             color: #ffffff;
             font-size: 1.35rem;
             font-weight: 800;
@@ -98,14 +98,14 @@
             border-radius: 6px;
             display: inline-block;
             text-transform: uppercase;
-            box-shadow: 0 4px 10px rgba(194, 91, 108, 0.2);
+            box-shadow: 0 2px 8px rgba(21, 84, 209, .28);
             margin-bottom: 0.8rem;
         }
 
         .bill-meta-table {
             font-size: 0.88rem;
             margin-left: auto;
-            color: #332628;
+            color: #334155;
         }
 
         .bill-meta-table td {
@@ -114,7 +114,7 @@
 
         .bill-meta-table td.lbl {
             font-weight: 700;
-            color: #2b1f21;
+            color: #0e1726;
             white-space: nowrap;
         }
 
@@ -127,15 +127,15 @@
         }
 
         .cust-card {
-            border: 1px solid #f5cbd2;
+            border: 1px solid #dfe4ee;
             border-radius: 10px;
             padding: 1rem 1.2rem;
-            background: #fffafa;
+            background: #f7f9fc;
             position: relative;
         }
 
         .cust-card-title {
-            color: #c25b6c;
+            color: #1554d1;
             font-weight: 800;
             font-size: 0.82rem;
             letter-spacing: 0.12em;
@@ -149,19 +149,19 @@
             content: "";
             flex: 1;
             height: 1px;
-            background: #f5cbd2;
+            background: #dfe4ee;
         }
 
         .cust-name {
             font-weight: 700;
             font-size: 1rem;
-            color: #2b1f21;
+            color: #0e1726;
             margin-bottom: 0.2rem;
         }
 
         .cust-address {
             font-size: 0.85rem;
-            color: #554447;
+            color: #475569;
             line-height: 1.45;
         }
 
@@ -169,7 +169,7 @@
             margin-top: 0.4rem;
             font-size: 0.88rem;
             font-weight: 700;
-            color: #2b1f21;
+            color: #0e1726;
         }
 
         /* Items Table */
@@ -181,38 +181,38 @@
         }
 
         .bill-table th {
-            background: #c25b6c;
+            background: #1554d1;
             color: #ffffff;
             font-weight: 700;
             font-size: 0.82rem;
             letter-spacing: 0.06em;
             padding: 0.65rem 0.75rem;
             text-transform: uppercase;
-            border: 1px solid #b34f60;
+            border: 1px solid #1043a8;
         }
 
         .bill-table td {
             padding: 0.75rem 0.75rem;
-            border: 1px solid #f5d3d9;
+            border: 1px solid #dfe4ee;
             vertical-align: top;
         }
 
         .p-name-title {
             font-weight: 700;
-            color: #221517;
+            color: #0e1726;
             font-size: 0.92rem;
         }
 
         .p-sub-detail {
             font-size: 0.78rem;
-            color: #c25b6c;
+            color: #1554d1;
             font-weight: 600;
             margin-top: 0.15rem;
         }
 
         .p-fabric-detail {
             font-size: 0.78rem;
-            color: #786568;
+            color: #64748b;
         }
 
         /* Summary Grid */
@@ -224,14 +224,14 @@
         }
 
         .summary-card {
-            border: 1px solid #f5cbd2;
+            border: 1px solid #dfe4ee;
             border-radius: 10px;
             padding: 1rem 1.2rem;
             background: #ffffff;
         }
 
         .summary-card-title {
-            color: #c25b6c;
+            color: #1554d1;
             font-weight: 800;
             font-size: 0.85rem;
             letter-spacing: 0.08em;
@@ -244,12 +244,12 @@
             justify-content: space-between;
             font-size: 0.88rem;
             padding: 0.25rem 0;
-            color: #443336;
+            color: #475569;
         }
 
         .grand-total-row {
-            background: #fce8eb;
-            color: #c25b6c;
+            background: #e7eefe;
+            color: #1554d1;
             font-weight: 800;
             font-size: 1.05rem;
             padding: 0.5rem 0.8rem;
@@ -262,7 +262,7 @@
         .words-box {
             font-size: 0.82rem;
             margin-top: 0.6rem;
-            color: #443336;
+            color: #475569;
         }
         .words-box b {
             font-weight: 700;
@@ -273,7 +273,7 @@
         }
 
         .thankyou-title {
-            color: #c25b6c;
+            color: #1554d1;
             font-weight: 800;
             font-size: 0.88rem;
             letter-spacing: 0.05em;
@@ -282,7 +282,7 @@
 
         .social-link {
             font-size: 0.83rem;
-            color: #443336;
+            color: #475569;
             margin-bottom: 0.35rem;
             display: flex;
             align-items: center;
@@ -296,30 +296,30 @@
         .qr-img {
             width: 90px;
             height: 90px;
-            border: 1px solid #e0d0d3;
+            border: 1px solid #dfe4ee;
             padding: 4px;
             border-radius: 6px;
         }
         .qr-caption {
             font-size: 0.75rem;
             font-weight: 800;
-            color: #c25b6c;
+            color: #1554d1;
             letter-spacing: 0.08em;
             margin-top: 0.2rem;
         }
 
         /* Terms & Footer */
         .terms-card {
-            border: 1px solid #f5cbd2;
+            border: 1px solid #dfe4ee;
             border-radius: 10px;
             padding: 0.9rem 1.2rem;
-            background: #fffafa;
+            background: #f7f9fc;
             margin-bottom: 1.2rem;
         }
 
         .terms-header {
             text-align: center;
-            color: #c25b6c;
+            color: #1554d1;
             font-weight: 800;
             font-size: 0.8rem;
             letter-spacing: 0.12em;
@@ -332,7 +332,7 @@
         .terms-header::before, .terms-header::after {
             content: "◆";
             font-size: 0.6rem;
-            color: #c25b6c;
+            color: #1554d1;
         }
 
         .terms-grid {
@@ -340,7 +340,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 0.4rem 1.5rem;
             font-size: 0.78rem;
-            color: #554447;
+            color: #475569;
         }
         .terms-grid ul {
             margin: 0;
@@ -357,13 +357,13 @@
         .footer-script .t-script {
             font-family: 'Brush Script MT', 'Pacifico', cursive, sans-serif;
             font-size: 1.5rem;
-            color: #c25b6c;
+            color: #1554d1;
         }
         .footer-script .t-sub {
             font-size: 0.75rem;
             font-weight: 800;
             letter-spacing: 0.18em;
-            color: #443336;
+            color: #475569;
             text-transform: uppercase;
         }
 
@@ -388,7 +388,7 @@
         <a href="{{ route('invoice') }}" class="btn btn-outline-secondary btn-sm fw-semibold">
             <i class="bi bi-arrow-left me-1"></i> Back to Invoices
         </a>
-        <button type="button" class="btn btn-danger btn-sm fw-bold px-3" onclick="window.print()" style="background:#c25b6c;border-color:#c25b6c;">
+        <button type="button" class="btn btn-danger btn-sm fw-bold px-3" onclick="window.print()" style="background:#1554d1;border-color:#1554d1;">
             <i class="bi bi-printer me-1"></i> Print Invoice
         </button>
     </div>
@@ -550,6 +550,11 @@
                         <td>
                             <div class="p-name-title">{{ $item->product_name }}</div>
                             <div class="p-sub-detail">{{ $productType }}</div>
+                            @if ($item->dupatta)
+                                <div class="p-sub-detail" style="color:{{ $item->dupatta === 'with' ? '#1554d1' : '#b45309' }};">
+                                    {{ $item->dupatta === 'with' ? 'With Dupatta' : 'Without Dupatta' }}
+                                </div>
+                            @endif
                             <div class="p-fabric-detail">{{ $fabric }}</div>
                         </td>
                         <td style="text-align:center;font-weight:700;">{{ $size }}</td>
@@ -604,8 +609,8 @@
 
                     <div class="qr-wrapper">
                         <!-- SVG / QR placeholder -->
-                        <div style="width:90px;height:90px;border:1px solid #e0d0d3;border-radius:6px;padding:4px;display:inline-block;background:#fff;">
-                            <svg viewBox="0 0 100 100" fill="#2c2224">
+                        <div style="width:90px;height:90px;border:1px solid #dfe4ee;border-radius:6px;padding:4px;display:inline-block;background:#fff;">
+                            <svg viewBox="0 0 100 100" fill="#0e1726">
                                 <rect x="0" y="0" width="30" height="30"/>
                                 <rect x="5" y="5" width="20" height="20" fill="#fff"/>
                                 <rect x="10" y="10" width="10" height="10"/>

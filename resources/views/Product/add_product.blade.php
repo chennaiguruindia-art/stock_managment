@@ -6,123 +6,125 @@
 @section('content')
     <style>
         .page-form {
-            --accent-2: #7a2b3a;
-            --soft: #f7f4f1;
-            --line: #ece6e0;
-            --ink-muted: #8a7f7a;
+            --accent-2: #1043a8;
+            --soft: #f5f7fb;
+            --line: #dfe4ee;
+            --ink-muted: #66748b;
         }
 
         /* ===== Import / bulk upload ===== */
         .import-card {
-            background: linear-gradient(180deg, #fffdfb 0%, #ffffff 100%);
+            background: #ffffff;
             border: 1px solid var(--line);
-            border-radius: 20px;
+            border-radius: var(--radius, 10px);
             overflow: hidden;
-            box-shadow: 0 14px 40px rgba(64, 0, 0, 0.08);
+            box-shadow: 0 1px 2px rgba(16, 24, 40, .05);
         }
         .import-head {
             display: flex;
             align-items: center;
             gap: 1rem;
-            padding: 1.25rem 1.5rem;
+            padding: 1rem 1.25rem;
             border-bottom: 1px solid var(--line);
             flex-wrap: wrap;
         }
         .import-head .im-icon {
-            width: 46px;
-            height: 46px;
+            width: 40px;
+            height: 40px;
             flex-shrink: 0;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 14px;
-            background: linear-gradient(135deg, #f3e2e3 0%, #fbe9de 100%);
-            color: var(--accent);
-            font-size: 1.35rem;
+            border-radius: 8px;
+            background: var(--accent-soft, #e7eefe);
+            color: var(--accent, #1554d1);
+            font-size: 1.2rem;
         }
         .import-head h2 {
-            font-size: 1.15rem;
+            font-size: 1.02rem;
             font-weight: 700;
             margin: 0;
+            letter-spacing: -.01em;
         }
         .import-head p {
             margin: 0;
             color: var(--ink-muted);
-            font-size: .86rem;
+            font-size: .84rem;
         }
         .import-body {
-            padding: 1.5rem;
+            padding: 1.25rem;
         }
         .dropzone {
-            border: 1.6px dashed #d8cdc4;
-            border-radius: 16px;
-            background: #fdfbf9;
-            padding: 1.5rem;
+            border: 1.5px dashed var(--border-strong, #c5cede);
+            border-radius: var(--radius, 10px);
+            background: var(--surface-2, #f7f9fc);
+            padding: 1.35rem;
             text-align: center;
-            transition: border-color .18s ease, background .18s ease;
+            transition: border-color .15s ease, background .15s ease;
             cursor: pointer;
         }
         .dropzone:hover, .dropzone.has-file {
-            border-color: var(--accent);
-            background: #fbf3f1;
+            border-color: var(--accent, #1554d1);
+            background: var(--accent-soft, #e7eefe);
         }
         .dropzone .dz-icon {
-            font-size: 1.8rem;
-            color: var(--accent);
+            font-size: 1.7rem;
+            color: var(--accent, #1554d1);
             margin-bottom: .4rem;
         }
         .dropzone .dz-title {
             font-weight: 700;
-            color: var(--text);
+            color: var(--text, #0e1726);
         }
         .dropzone .dz-sub {
-            font-size: .82rem;
+            font-size: .8rem;
             color: var(--ink-muted);
         }
         .dropzone .dz-file {
             font-weight: 700;
-            color: var(--accent);
+            color: var(--accent, #1554d1);
         }
         .chips {
             display: flex;
             flex-wrap: wrap;
-            gap: .45rem;
+            gap: .4rem;
         }
         .chips .chip {
             font-family: ui-monospace, Consolas, monospace;
-            font-size: .74rem;
+            font-size: .72rem;
             font-weight: 600;
-            color: var(--accent);
-            background: var(--accent-soft);
-            border-radius: 8px;
-            padding: .28rem .55rem;
+            color: var(--accent-strong, #1043a8);
+            background: var(--accent-soft, #e7eefe);
+            border: 1px solid #cdddfb;
+            border-radius: 6px;
+            padding: .24rem .5rem;
         }
         .btn-sample {
             border: 1px solid var(--line);
             background: #fff;
             color: var(--text);
             font-weight: 600;
-            border-radius: 12px;
-            padding: .55rem 1.1rem;
+            border-radius: 8px;
+            padding: .5rem 1rem;
             transition: background .15s ease, border-color .15s ease;
         }
         .btn-sample:hover {
             background: var(--soft);
-            border-color: #d6cbc2;
+            border-color: var(--border-strong, #c5cede);
             color: var(--text);
         }
-        .btn-sample i { color: var(--accent); }
+        .btn-sample i { color: var(--accent, #1554d1); }
 
         /* ===== Manual form ===== */
         .form-card {
             background: #fff;
             border: 1px solid var(--line);
-            border-radius: 20px;
-            box-shadow: 0 14px 40px rgba(64, 0, 0, 0.06);
-            padding: 1.6rem 1.7rem;
+            border-radius: var(--radius, 10px);
+            box-shadow: 0 1px 2px rgba(16, 24, 40, .05);
+            padding: 1.35rem 1.4rem;
         }
         .section-block {
-            margin-bottom: 1.6rem;
+            margin-bottom: 1.4rem;
         }
         .section-block:last-of-type {
             margin-bottom: 0;
@@ -131,25 +133,26 @@
             display: flex;
             align-items: center;
             gap: .7rem;
-            margin-bottom: 1rem;
+            margin-bottom: .95rem;
         }
         .section-head .num {
-            width: 30px;
-            height: 30px;
+            width: 28px;
+            height: 28px;
             flex-shrink: 0;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 10px;
-            background: var(--accent);
+            border-radius: 7px;
+            background: var(--accent, #1554d1);
             color: #fff;
-            font-size: .82rem;
+            font-size: .78rem;
             font-weight: 700;
         }
         .section-head .title {
             font-weight: 700;
-            font-size: .98rem;
+            font-size: .95rem;
             margin: 0;
+            letter-spacing: -.01em;
         }
         .section-head .line {
             flex: 1;
@@ -159,118 +162,119 @@
 
         .f-label {
             font-weight: 600;
-            font-size: .84rem;
-            margin-bottom: .4rem;
-            color: #4a3f3c;
+            font-size: .8rem;
+            margin-bottom: .38rem;
+            color: #334155;
             display: flex;
             align-items: center;
             gap: .4rem;
         }
-        .f-label i { color: var(--accent); font-size: .8rem; }
+        .f-label i { color: var(--accent, #1554d1); font-size: .78rem; }
         .f-control {
-            border: 1px solid #e4dcd5;
-            border-radius: 11px;
-            padding: .6rem .8rem;
-            font-size: .92rem;
-            background: #fdfcfb;
+            border: 1px solid var(--border-strong, #c5cede);
+            border-radius: 8px;
+            padding: .55rem .75rem;
+            font-size: .875rem;
+            background: #fff;
             transition: border-color .15s ease, box-shadow .15s ease;
         }
         .f-control:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 0 3px rgba(107, 31, 42, .10);
+            border-color: var(--accent, #1554d1);
+            box-shadow: 0 0 0 3px rgba(21, 84, 209, .13);
             background: #fff;
         }
         .f-group { position: relative; }
         .f-group > i {
             position: absolute;
-            left: .85rem;
+            left: .8rem;
             top: 50%;
             transform: translateY(-50%);
-            color: #b8aba3;
+            color: var(--border-strong, #c5cede);
             font-size: .95rem;
             pointer-events: none;
         }
         .f-group > i + .f-control,
-        .f-group > i + select.f-control { padding-left: 2.4rem; }
+        .f-group > i + select.f-control { padding-left: 2.3rem; }
 
         .variant-panel {
-            background: var(--soft);
+            background: var(--surface-2, #f7f9fc);
             border: 1px solid var(--line);
-            border-radius: 14px;
-            padding: 1.1rem;
+            border-radius: var(--radius, 10px);
+            padding: 1rem;
         }
 
         .auto-field {
-            background: #f6f2ee !important;
+            background: var(--surface-3, #eaeff7) !important;
             border-style: dashed !important;
-            color: var(--muted);
+            color: var(--muted, #66748b);
             font-family: ui-monospace, Consolas, monospace;
         }
         .auto-tag {
             position: absolute;
             top: -9px;
             right: 12px;
-            background: var(--accent-soft);
-            color: var(--accent);
-            font-size: .64rem;
+            background: var(--accent-soft, #e7eefe);
+            color: var(--accent-strong, #1043a8);
+            border: 1px solid #cdddfb;
+            font-size: .6rem;
             font-weight: 700;
             letter-spacing: .06em;
             text-transform: uppercase;
-            padding: .14rem .5rem;
+            padding: .12rem .45rem;
             border-radius: 999px;
             z-index: 2;
         }
-        .barcode-msg { display: block; margin-top: .32rem; font-size: .76rem; font-weight: 600; }
-        .barcode-msg.ok { color: #16794c; }
-        .barcode-msg.bad { color: #b3373f; }
+        .barcode-msg { display: block; margin-top: .3rem; font-size: .74rem; font-weight: 600; }
+        .barcode-msg.ok { color: #0f9d58; }
+        .barcode-msg.bad { color: #dc2626; }
 
         .price-prefix {
             position: absolute;
-            left: .85rem;
+            left: .8rem;
             top: 50%;
             transform: translateY(-50%);
             font-weight: 700;
-            color: var(--accent);
-            font-size: .9rem;
+            color: var(--accent, #1554d1);
+            font-size: .88rem;
             pointer-events: none;
             z-index: 2;
         }
-        .price-group input { padding-left: 2.2rem; }
+        .price-group input { padding-left: 2.1rem; }
 
         .btn-save {
-            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+            background: var(--accent, #1554d1);
             border: none;
             color: #fff;
             font-weight: 600;
-            padding: .66rem 2rem;
-            border-radius: 12px;
-            box-shadow: 0 10px 22px rgba(107, 31, 42, .24);
-            transition: transform .15s ease, box-shadow .15s ease;
+            padding: .6rem 1.8rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(21, 84, 209, .25);
+            transition: background .15s ease, box-shadow .15s ease;
         }
         .btn-save:hover {
             color: #fff;
-            transform: translateY(-1px);
-            box-shadow: 0 14px 28px rgba(107, 31, 42, .30);
+            background: var(--accent-strong, #1043a8);
+            box-shadow: 0 4px 12px rgba(21, 84, 209, .3);
         }
         .btn-reset {
             border: 1px solid var(--line);
             background: #fff;
             color: var(--text);
             font-weight: 600;
-            padding: .66rem 1.5rem;
-            border-radius: 12px;
+            padding: .6rem 1.4rem;
+            border-radius: 8px;
         }
         .btn-reset:hover { background: var(--soft); }
 
         /* ===== Preview panel ===== */
         .preview-panel {
             position: sticky;
-            top: 90px;
+            top: 84px;
             background: #fff;
             border: 1px solid var(--line);
-            border-radius: 20px;
-            box-shadow: 0 14px 40px rgba(64, 0, 0, 0.06);
-            padding: 1.4rem 1.5rem;
+            border-radius: var(--radius, 10px);
+            box-shadow: 0 1px 2px rgba(16, 24, 40, .05);
+            padding: 1.2rem 1.3rem;
         }
         .pv-head {
             display: flex;
@@ -280,53 +284,58 @@
         }
         .pv-head .pv-title {
             font-weight: 700;
-            font-size: 1rem;
+            font-size: .95rem;
             margin: 0;
             display: flex;
             align-items: center;
             gap: .5rem;
+            letter-spacing: -.01em;
         }
-        .pv-head .pv-title i { color: var(--accent); }
+        .pv-head .pv-title i { color: var(--accent, #1554d1); }
         .pv-badge {
-            background: var(--accent-soft);
-            color: var(--accent);
-            font-size: .64rem;
+            background: var(--accent-soft, #e7eefe);
+            color: var(--accent-strong, #1043a8);
+            border: 1px solid #cdddfb;
+            font-size: .6rem;
             font-weight: 700;
             letter-spacing: .06em;
             text-transform: uppercase;
             border-radius: 999px;
-            padding: .18rem .55rem;
+            padding: .16rem .5rem;
         }
         .pv-hint {
             color: var(--ink-muted);
-            font-size: .8rem;
-            margin-bottom: .9rem;
+            font-size: .78rem;
+            margin-bottom: .85rem;
             border-bottom: 1px solid var(--line);
-            padding-bottom: .7rem;
+            padding-bottom: .65rem;
         }
         .pv-section-title {
-            font-size: .68rem;
+            font-size: .66rem;
             font-weight: 700;
             letter-spacing: .1em;
             text-transform: uppercase;
-            color: #b0a49c;
+            color: #94a3b8;
             margin: .8rem 0 .2rem;
         }
         .pv-row {
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            padding: .34rem 0;
-            font-size: .88rem;
+            padding: .32rem 0;
+            font-size: .86rem;
+            border-bottom: 1px dashed var(--line);
         }
+        .pv-row:last-child { border-bottom: 0; }
         .pv-row span { color: var(--ink-muted); }
         .pv-row strong {
             text-align: right;
             word-break: break-all;
             font-family: ui-monospace, Consolas, monospace;
             color: var(--text);
+            font-variant-numeric: tabular-nums;
         }
-        .pv-row strong.local { color: var(--accent); font-family: inherit; font-weight: 700; }
+        .pv-row strong.local { color: var(--accent, #1554d1); font-family: inherit; font-weight: 700; }
     </style>
 
     <div class="page-form">
@@ -371,6 +380,7 @@
                                 <span class="chip">stock</span>
                                 <span class="chip">mrp</span>
                                 <span class="chip">selling_price</span>
+                                <span class="chip">has_dupatta</span>
                             </div>
                         </div>
                         <div class="col-md-6 d-flex flex-wrap align-items-end justify-content-md-end gap-2">
@@ -426,7 +436,7 @@
                                         <label class="f-label"><i class="bi bi-tags"></i> Product type</label>
                                         <select class="form-select f-control" name="product_type">
                                             <option value="" {{ old('product_type') === '' ? 'selected' : '' }}>Choose type</option>
-                                            @foreach (['1 Piece set (Top)', '2 Pcs set (kurthi &shawl)', '2 Pcs set (kurthi &Pant)', '3 Pcs Set', 'Anarkali', 'Anarkali with shawl', 'Short Kurthi ', 'Saree', 'Lehenga','Night Wear','Kids Wear','Lingerie','Bralette'] as $type)
+                                            @foreach (['1 Piece set (Top)', '2 Pcs set (kurthi &shawl)', '2 Pcs set (kurthi &Pant)', '3 Pcs Set', 'Anarkali', 'Anarkali with shawl', 'Short Kurthi ', 'Saree', 'Lehenga','Night Wear','Kids Wear','Lingerie','Bralette','Dupatta'] as $type)
                                                 <option {{ old('product_type') === $type ? 'selected' : '' }}>{{ $type }}</option>
                                             @endforeach
                                         </select>
@@ -446,7 +456,7 @@
                                     </div>
                                     <div class="col-md-3">
                                         <label class="f-label"><i class="bi bi-box"></i> Stock</label>
-                                        <input type="number" min="0" class="form-control f-control" placeholder="0" name="stock" value="{{ old('stock', 0) }}">
+                                        <input id="stockInput" type="number" min="0" class="form-control f-control" placeholder="0" name="stock" value="{{ old('stock', 0) }}">
                                     </div>
                                 </div>
                             </div>
@@ -521,10 +531,42 @@
                             </div>
                         </div>
 
+                        {{-- Dupatta --}}
+                        <div class="section-block">
+                            <div class="section-head">
+                                <span class="num">5</span><h5 class="title">Dupatta</h5><span class="line"></span>
+                            </div>
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-5">
+                                    <div class="form-check form-switch mb-1">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="hasDupatta" name="has_dupatta" value="1" {{ old('has_dupatta') ? 'checked' : '' }}>
+                                        <label class="form-check-label fw-semibold" for="hasDupatta">
+                                            <i class="bi bi-scissors me-1" style="color:var(--accent);"></i> This product comes with a dupatta
+                                        </label>
+                                    </div>
+                                    <div class="text-muted" style="font-size:.78rem;">
+                                        When ticked, the POS asks <b>With Dupatta</b> or <b>Without Dupatta</b> each time the product is selected.
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="f-label" for="dupattaDiscount"><i class="bi bi-currency-rupee"></i> Without dupatta, reduce</label>
+                                    <div class="f-group price-group position-relative">
+                                        <span class="price-prefix">&#8377;</span>
+                                        <input id="dupattaDiscount" type="number" min="0" step="1" class="form-control f-control" placeholder="300" name="dupatta_discount" value="{{ old('dupatta_discount', 300) }}">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="f-label" for="dupattaQty"><i class="bi bi-box-seam"></i> Quantity</label>
+                                    <input id="dupattaQty" type="number" min="0" class="form-control f-control" placeholder="10" name="dupatta_quantity" value="{{ old('dupatta_quantity', 10) }}">
+                                    <small class="text-muted" style="font-size:.72rem;">Sets the stock quantity.</small>
+                                </div>
+                            </div>
+                        </div>
+
                         {{-- Description --}}
                         <div class="section-block">
                             <div class="section-head">
-                                <span class="num">5</span><h5 class="title">Description</h5><span class="line"></span>
+                                <span class="num">6</span><h5 class="title">Description</h5><span class="line"></span>
                             </div>
                             <textarea class="form-control f-control" rows="3" placeholder="Example: Lightweight chiffon kurthi for women, floral print" name="description">{{ old('description') }}</textarea>
                         </div>
@@ -617,6 +659,35 @@
             const skuInput = document.getElementById('skuInput');
             const barcodeInput = document.getElementById('barcodeInput');
             const productIdInput = document.getElementById('productIdInput');
+
+            // Dupatta section: Quantity mirrors the main Stock field, and ticking
+            // the switch fills the defaults (reduce 300 / quantity 10).
+            const dupattaSwitch = document.getElementById('hasDupatta');
+            const dupattaDiscount = document.getElementById('dupattaDiscount');
+            const dupattaQty = document.getElementById('dupattaQty');
+
+            if (dupattaSwitch && dupattaQty && stockInput) {
+                const pushQtyToStock = () => {
+                    stockInput.value = dupattaQty.value;
+                    stockInput.dispatchEvent(new Event('input', { bubbles: true }));
+                };
+                const pullStockToQty = () => { dupattaQty.value = stockInput.value; };
+
+                dupattaQty.addEventListener('input', pushQtyToStock);
+                stockInput.addEventListener('input', pullStockToQty);
+                pullStockToQty();
+
+                dupattaSwitch.addEventListener('change', () => {
+                    if (!dupattaSwitch.checked) return;
+                    if (!dupattaDiscount.value || parseFloat(dupattaDiscount.value) <= 0) {
+                        dupattaDiscount.value = '300';
+                    }
+                    if (!stockInput.value || parseInt(stockInput.value, 10) === 0) {
+                        dupattaQty.value = '10';
+                        pushQtyToStock();
+                    }
+                });
+            }
 
             function getEffectiveBrand() {
                 if (brandInput.value === '__new') {

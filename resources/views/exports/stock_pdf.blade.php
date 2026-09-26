@@ -4,17 +4,17 @@
     <meta charset="utf-8">
     <title>Stock Report</title>
     <style>
-        body { font-family: DejaVu Sans, sans-serif; font-size: 10px; color: #2c2224; }
-        .head { text-align: center; border-bottom: 2px solid #6b1f2a; padding-bottom: 8px; margin-bottom: 12px; }
-        .head h1 { margin: 0; font-size: 18px; letter-spacing: 1px; color: #6b1f2a; }
+        body { font-family: DejaVu Sans, sans-serif; font-size: 10px; color: #0e1726; }
+        .head { text-align: center; border-bottom: 2px solid #0f1f36; padding-bottom: 8px; margin-bottom: 12px; }
+        .head h1 { margin: 0; font-size: 18px; letter-spacing: 1px; color: #0f1f36; }
         .head .sub { font-size: 9px; color: #555; margin-top: 2px; }
         h2 { font-size: 12px; margin: 0 0 8px; color: #444; }
         table { width: 100%; border-collapse: collapse; }
-        th { background: #6b1f2a; color: #fff; padding: 5px 4px; font-size: 9px; text-align: left; }
+        th { background: #0f1f36; color: #fff; padding: 5px 4px; font-size: 9px; text-align: left; }
         td { border: 1px solid #ddd; padding: 4px; }
-        tr:nth-child(even) td { background: #faf5f6; }
-        .st-out { color: #b3373f; font-weight: bold; }
-        .st-low { color: #a2701c; font-weight: bold; }
+        tr:nth-child(even) td { background: #f5f7fb; }
+        .st-out { color: #dc2626; font-weight: bold; }
+        .st-low { color: #b45309; font-weight: bold; }
         .summary { margin-top: 14px; width: 60%; }
         .summary td { border: none; padding: 2px 0; font-size: 10px; }
         .footer { margin-top: 16px; text-align: center; font-size: 8px; color: #888; border-top: 1px solid #ddd; padding-top: 6px; }

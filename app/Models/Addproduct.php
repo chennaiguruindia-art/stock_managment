@@ -8,4 +8,10 @@ class Addproduct extends Model
 {
     protected $table = 'addproducts';
     protected $guarded = [];
+
+    protected $casts = [
+        'has_dupatta' => 'boolean',
+        'stock' => 'integer',
+        'dupatta_discount' => 'float',
+    ];
 }
