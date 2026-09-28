@@ -55,6 +55,15 @@
             margin-top: .25rem;
             font-variant-numeric: tabular-nums;
         }
+        .sh-stat .sub {
+            font-size: .7rem;
+            color: var(--muted, #66748b);
+            margin-top: .3rem;
+            line-height: 1.3;
+            font-variant-numeric: tabular-nums;
+        }
+        .sh-stat .sub .neg { color: #c62828; font-weight: 700; }
+        .sh-stat .sub .strike { text-decoration: line-through; opacity: .75; }
         .sh-orders { --tone: #1554d1; --tone-soft: #e7eefe; }
         .sh-revenue{ --tone: #0f9d58; --tone-soft: #e4f7ec; }
         .sh-avg    { --tone: #7c3aed; --tone-soft: #f0eafe; }
@@ -85,6 +94,26 @@
             justify-content: center;
         }
         .expand-btn:hover { background: var(--accent-soft, #e7eefe); }
+
+        .amt-orig {
+            font-size: .78rem;
+            font-weight: 500;
+            color: var(--muted, #66748b);
+            text-decoration: line-through;
+        }
+        .amt-ret {
+            display: block;
+            font-size: .72rem;
+            font-weight: 700;
+            color: #c62828;
+        }
+        .ret-mark {
+            display: inline-block;
+            margin-top: .2rem;
+            font-size: .68rem;
+            font-weight: 700;
+            color: #c62828;
+        }
     </style>
 
     @include('layouts.alerts')
@@ -102,6 +131,12 @@
                 <i class="bi bi-currency-rupee icon"></i>
                 <div class="label">Total revenue</div>
                 <div class="value">₹{{ number_format($totalRevenue, 2) }}</div>
+                @if ($totalReturned > 0)
+                    <div class="sub">
+                        Gross ₹{{ number_format($totalRevenue + $totalReturned, 2) }}
+                        &middot; <span class="neg">− ₹{{ number_format($totalReturned, 2) }} returned</span>
+                    </div>
+                @endif
             </div>
         </div>
         <div class="col-lg-3 col-sm-6">
@@ -116,6 +151,13 @@
                 <i class="bi bi-box-seam icon"></i>
                 <div class="label">Items sold</div>
                 <div class="value">{{ $totalItems }}</div>
+                @if ($returnedItems > 0)
+                    <div class="sub">
+                        <span class="strike">{{ $totalItems + $returnedItems }} gross</span>
+                        &middot; <span class="neg">{{ $returnedItems }} returned</span>
+                        in {{ $ordersWithReturns }} order(s)
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -142,6 +184,13 @@
                 </thead>
                 <tbody>
                     @forelse ($orders as $order)
+                        @php
+                            $returnedUnits = $order->returnedQty();
+                            $returnedAmount = $order->returnedTotal();
+                            $netAmount = $order->netTotal();
+                            $netUnits = $order->netQty();
+                            $state = $order->returnState();
+                        @endphp
                         <tr data-search="{{ strtolower($order->order_id . ' ' . ($order->customer_name ?? '') . ' ' . ($order->customer_mobile ?? '')) }}">
                             <td>
                                 <button class="expand-btn" data-toggle="items-{{ $order->id }}">
@@ -154,21 +203,64 @@
                                 <div class="fw-semibold">{{ $order->customer_name ?: 'Walk-in' }}</div>
                                 <div class="text-muted" style="font-size:.78rem;">{{ $order->customer_mobile ?: '—' }}</div>
                             </td>
-                            <td>{{ $order->items->sum('qty') }}</td>
-                            <td class="fw-bold">₹{{ number_format($order->total, 2) }}</td>
-                            <td><span class="badge bg-success rounded-pill">Paid</span></td>
+                            <td>
+                                {{ $netUnits }}
+                                @if ($returnedUnits > 0)
+                                    <span class="ret-mark">−{{ $returnedUnits }} returned</span>
+                                @endif
+                            </td>
+                            <td class="fw-bold">
+                                @if ($returnedAmount > 0)
+                                    <span class="amt-orig">₹{{ number_format($order->total, 2) }}</span>
+                                    ₹{{ number_format($netAmount, 2) }}
+                                    <span class="amt-ret">− ₹{{ number_format($returnedAmount, 2) }} returned</span>
+                                @else
+                                    ₹{{ number_format($order->total, 2) }}
+                                @endif
+                            </td>
+                            <td>
+                                @if ($state === 'full')
+                                    <span class="badge bg-danger rounded-pill">Returned</span>
+                                @elseif ($state === 'partial')
+                                    <span class="badge bg-warning text-dark rounded-pill">Partly returned</span>
+                                @else
+                                    <span class="badge bg-success rounded-pill">Paid</span>
+                                @endif
+                            </td>
                         </tr>
                         <tr class="d-none" id="items-{{ $order->id }}">
                             <td colspan="7" class="bg-light" style="border-radius:0 0 16px 16px;">
                                 <div class="p-3">
                                     @foreach ($order->items as $item)
+                                        @php
+                                            $lineReturned = $item->returnedAmount();
+                                        @endphp
                                         <div class="row py-2 align-items-center border-bottom border-secondary-subtle" style="font-size:.86rem;">
-                                            <div class="col-4 fw-semibold">{{ $item->product_name }}</div>
+                                            <div class="col-4 fw-semibold">
+                                                {{ $item->product_name }}
+                                                @if ($item->returnedQty() > 0)
+                                                    <span class="ret-mark">{{ $item->returnedQty() }} of {{ $item->qty }} returned</span>
+                                                @endif
+                                            </div>
                                             <div class="col-4 text-muted">{{ $item->sku }} &middot; {{ $item->barcode }}</div>
                                             <div class="col-2 text-end">{{ $item->qty }} × ₹{{ number_format($item->price, 2) }}</div>
-                                            <div class="col-2 text-end fw-bold">₹{{ number_format($item->total, 2) }}</div>
+                                            <div class="col-2 text-end fw-bold">
+                                                @if ($lineReturned > 0)
+                                                    <span class="amt-orig">₹{{ number_format($item->total, 2) }}</span>
+                                                    ₹{{ number_format($item->netAmount(), 2) }}
+                                                    <span class="amt-ret">− ₹{{ number_format($lineReturned, 2) }}</span>
+                                                @else
+                                                    ₹{{ number_format($item->total, 2) }}
+                                                @endif
+                                            </div>
                                         </div>
                                     @endforeach
+                                    @if ($returnedAmount > 0)
+                                        <div class="row py-2 align-items-center" style="font-size:.86rem;">
+                                            <div class="col-10 text-end text-danger fw-bold">Order total after returns</div>
+                                            <div class="col-2 text-end text-danger fw-bold">₹{{ number_format($netAmount, 2) }}</div>
+                                        </div>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

@@ -19,4 +19,28 @@ class OrderItem extends Model
     {
         return $this->belongsTo(Addproduct::class);
     }
+
+    /** Units the customer still holds (sold qty minus units handed back). */
+    public function netQty(): int
+    {
+        return max(0, (int) $this->qty - (int) $this->returned_qty);
+    }
+
+    /** Units handed back on this line. */
+    public function returnedQty(): int
+    {
+        return (int) $this->returned_qty;
+    }
+
+    /** Value of the returned units at the price actually charged per unit. */
+    public function returnedAmount(): float
+    {
+        return round((float) $this->price * (int) $this->returned_qty, 2);
+    }
+
+    /** Line value that still counts as a sale. */
+    public function netAmount(): float
+    {
+        return round((float) $this->price * $this->netQty(), 2);
+    }
 }

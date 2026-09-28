@@ -267,13 +267,17 @@ class indexController extends Controller
     {
         $orders = Order::with('items')->orderByDesc('id')->get();
 
-        $totalOrders = $orders->count();
-        $totalRevenue = (float) $orders->sum('total');
-        $totalItems = (int) $orders->sum(fn ($o) => $o->items->sum('qty'));
+        $totalOrders   = $orders->count();
+        $totalReturned = (float) $orders->sum(fn (Order $o) => $o->returnedTotal());
+        $totalRevenue  = (float) $orders->sum(fn (Order $o) => $o->netTotal());
+        $totalItems    = (int) $orders->sum(fn (Order $o) => $o->netQty());
+        $returnedItems = (int) $orders->sum(fn (Order $o) => $o->returnedQty());
+        $ordersWithReturns = (int) $orders->filter(fn (Order $o) => $o->returnedQty() > 0)->count();
         $avgOrder = $totalOrders > 0 ? round($totalRevenue / $totalOrders, 2) : 0;
 
         return view('stock.sales_history', compact(
-            'orders', 'totalOrders', 'totalRevenue', 'totalItems', 'avgOrder'
+            'orders', 'totalOrders', 'totalRevenue', 'totalReturned',
+            'totalItems', 'returnedItems', 'ordersWithReturns', 'avgOrder'
         ));
     }
 
