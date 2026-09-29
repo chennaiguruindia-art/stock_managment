@@ -800,15 +800,18 @@ class MainController extends Controller
             return redirect()->route('return_product')->with('error', 'Return item not found.');
         }
 
+        // Stay on the bill we came from so the operator does not have to search it again.
+        $backTo = $item->order ? ['invoice' => $item->order->order_id] : [];
+
         $remaining = $item->qty - (int) $item->returned_qty;
 
         if ($quantity < 1 || $quantity > $remaining) {
-            return redirect()->route('return_product')
+            return redirect()->route('return_product', $backTo)
                 ->with('error', "Return quantity must be between 1 and {$remaining}.");
         }
 
         if ($reason === '') {
-            return redirect()->route('return_product')
+            return redirect()->route('return_product', $backTo)
                 ->with('error', 'Please enter a reason for the return.');
         }
 
@@ -839,7 +842,7 @@ class MainController extends Controller
             ]);
         });
 
-        return redirect()->route('return_product')
+        return redirect()->route('return_product', $backTo)
             ->with('success', "Returned {$quantity} unit(s) of {$item->product_name} and stock updated.");
     }
 }

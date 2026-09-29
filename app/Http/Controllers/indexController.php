@@ -121,66 +121,74 @@ class indexController extends Controller
     {
         $invoice = trim($request->input('invoice') ?? '');
         $notFound = false;
+        $order = null;
+        $items = collect();
 
-        $orders = Order::with('items')->orderByDesc('id')->get();
-
-        $items = $orders->flatMap(fn ($o) => $o->items->map(function ($i) use ($o) {
-            return (object) [
-                'id' => $i->id,
-                'order_id' => $o->order_id,
-                'customer_name' => $o->customer_name,
-                'product_name' => $i->product_name,
-                'barcode' => $i->barcode,
-                'qty' => $i->qty,
-                'returned_qty' => $i->returned_qty,
-            ];
-        }));
-
+        // Bill-first: only ever show the items of the bill that was asked for.
         if ($invoice !== '') {
-            $invClean = Str::lower($invoice);
-            $invDigits = preg_replace('/\D/', '', $invoice);
+            $order = $this->findOrderByInvoice($invoice);
 
-            $matched = $orders->filter(function ($o) use ($invClean, $invDigits) {
-                $orderClean = Str::lower($o->order_id);
-                $orderDigits = preg_replace('/\D/', '', $o->order_id);
-
-                if ($orderClean === $invClean) {
-                    return true;
-                }
-                if (str_contains($orderClean, $invClean) || str_contains($invClean, $orderClean)) {
-                    return true;
-                }
-                if ($invDigits !== '' && (int) $invDigits > 0) {
-                    if ((int) $orderDigits === (int) $invDigits) {
-                        return true;
-                    }
-                }
-
-                return false;
-            });
-
-            if ($matched->isNotEmpty()) {
-                $items = $matched->flatMap(fn ($o) => $o->items->map(function ($i) use ($o) {
-                    return (object) [
-                        'id' => $i->id,
-                        'order_id' => $o->order_id,
-                        'customer_name' => $o->customer_name,
-                        'product_name' => $i->product_name,
-                        'barcode' => $i->barcode,
-                        'qty' => $i->qty,
-                        'returned_qty' => $i->returned_qty,
-                    ];
-                }));
+            if ($order) {
+                $order->load('items');
+                $items = $order->items;
             } else {
                 $notFound = true;
             }
         }
 
         $recentReturns = StockReturn::orderByDesc('id')->take(20)->get();
+        $recentOrders = Order::withCount('items')->orderByDesc('id')->take(8)->get();
 
         return view('Product.return_product', compact(
-            'orders', 'items', 'recentReturns', 'invoice', 'notFound'
+            'order', 'items', 'recentOrders', 'recentReturns', 'invoice', 'notFound'
         ));
+    }
+
+    /**
+     * Resolve a typed bill number (ORD-0001, 0001, 1, or a partial string) to one order.
+     */
+    private function findOrderByInvoice(string $invoice): ?Order
+    {
+        $needle = trim($invoice);
+
+        if ($needle === '') {
+            return null;
+        }
+
+        $exact = Order::where('order_id', $needle)->first();
+        if ($exact) {
+            return $exact;
+        }
+
+        $lower = Str::lower($needle);
+        $digits = preg_replace('/\D/', '', $needle);
+
+        $candidates = Order::query()
+            ->where('order_id', 'like', '%'.$this->likeEscape($needle).'%')
+            ->when($digits !== '' && (int) $digits > 0, fn ($q) => $q->orWhere('order_id', 'like', '%'.$digits.'%'))
+            ->orderByDesc('id')
+            ->limit(50)
+            ->get();
+
+        return $candidates->first(function (Order $o) use ($lower, $digits) {
+            $orderLower = Str::lower($o->order_id);
+            $orderDigits = preg_replace('/\D/', '', $o->order_id);
+
+            if ($orderLower === $lower) {
+                return true;
+            }
+
+            if (str_contains($orderLower, $lower) || str_contains($lower, $orderLower)) {
+                return true;
+            }
+
+            return $digits !== '' && (int) $digits > 0 && (int) $orderDigits === (int) $digits;
+        });
+    }
+
+    private function likeEscape(string $value): string
+    {
+        return str_replace(['\\', '%', '_'], ['\\\\', '\%', '\_'], $value);
     }
 
     public function sell_pos()
