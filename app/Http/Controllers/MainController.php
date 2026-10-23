@@ -418,6 +418,72 @@ class MainController extends Controller
     }
 
     /**
+     * Update the editable details of a product (name, variant, prices, stock)
+     * from the "Edit product" modal on the stock management page, then keep
+     * the brand's total stock in sync.
+     */
+    public function updateProduct(Request $request)
+    {
+        $sanitizeDecimal = function ($val) {
+            if ($val === null) {
+                return null;
+            }
+            $val = trim((string) $val);
+            if ($val === '') {
+                return null;
+            }
+            $clean = preg_replace('/[^0-9.\-]/', '', $val);
+
+            return $clean === '' ? null : $clean;
+        };
+
+        $request->validate([
+            'id' => 'required|integer|exists:addproducts,id',
+            'product_name' => 'required|string|max:255',
+            'product_type' => 'nullable|string|max:255',
+            'color' => 'nullable|string|max:255',
+            'size' => 'nullable|string|max:255',
+            'stock' => 'required|integer|min:0',
+            'original_price' => 'nullable|numeric|min:0',
+            'mrp' => 'nullable|numeric|min:0',
+            'selling_price' => 'nullable|numeric|min:0',
+            'dupatta_discount' => 'nullable|numeric|min:0',
+        ]);
+
+        $product = Addproduct::findOrFail($request->input('id'));
+
+        $originalPrice = $sanitizeDecimal($request->input('original_price'));
+        $mrp = $sanitizeDecimal($request->input('mrp'));
+        $sellingPrice = $sanitizeDecimal($request->input('selling_price'));
+        $dupattaDiscount = $sanitizeDecimal($request->input('dupatta_discount'));
+        if ($dupattaDiscount === null || $dupattaDiscount === '') {
+            $dupattaDiscount = (string) self::DUPATTA_DISCOUNT;
+        }
+
+        $product->update([
+            'product_name' => trim($request->input('product_name')),
+            'product_type' => $request->filled('product_type') ? $request->input('product_type') : null,
+            'color' => $request->filled('color') ? $request->input('color') : null,
+            'size' => $request->filled('size') ? $request->input('size') : null,
+            'stock' => (int) $request->input('stock'),
+            'original_price' => $originalPrice === null ? null : (float) $originalPrice,
+            'mrp' => $mrp === null ? null : (float) $mrp,
+            'selling_price' => $sellingPrice === null ? null : (float) $sellingPrice,
+            'has_dupatta' => $this->toBool($request->input('has_dupatta', false)),
+            'dupatta_discount' => max((float) $dupattaDiscount, 0),
+        ]);
+
+        $brand = Brand::find($product->brand_id);
+        if ($brand) {
+            $brand->update([
+                'product_count' => (int) Addproduct::where('brand_id', $brand->id)->sum('stock'),
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Product updated: '.$product->product_name);
+    }
+
+    /**
      * Next auto barcode = ZY followed by a running 8-digit number.
      * First product gets ZY19821001, next ZY19821002, and so on.
      */
@@ -691,6 +757,13 @@ class MainController extends Controller
             return redirect()->back()->with('error', 'No valid products in cart.');
         }
 
+        // Optional order-level discount percentage (0-100) applied to the subtotal.
+        $discountPercent = $request->input('discount_percent');
+        $discountPercent = $discountPercent === null || $discountPercent === '' ? 0 : (float) $discountPercent;
+        $discountPercent = max(0, min(100, $discountPercent));
+        $discountAmount = round($total * $discountPercent / 100, 2);
+        $payableTotal = round($total - $discountAmount, 2);
+
         // Order id based on the last order placed so far (no reuse after deletion).
         $lastOrderId = Order::orderByDesc('id')->value('order_id');
         $seq = $lastOrderId ? (int) substr($lastOrderId, 4) + 1 : 1;
@@ -703,7 +776,9 @@ class MainController extends Controller
             'customer_name' => $customerName ?: null,
             'customer_mobile' => $customerMobile ?: null,
             'payment_mode' => $paymentMode,
-            'total' => round($total, 2),
+            'discount_percent' => $discountPercent,
+            'discount_amount' => $discountAmount,
+            'total' => $payableTotal,
         ]);
 
         foreach ($items as $item) {

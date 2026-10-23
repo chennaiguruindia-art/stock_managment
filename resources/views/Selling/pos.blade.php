@@ -285,6 +285,204 @@
 
         .summary-line b { color: var(--text, #0e1726); font-variant-numeric: tabular-nums; }
 
+        .summary-line.discount-line { align-items: center; }
+        .summary-line.discount-line .discount-amount { color: #d97706; }
+
+        /* ===== Unique discount "coupon ticket" ===== */
+        .discount-ticket {
+            position: relative;
+            margin: .15rem 0 .1rem;
+            border-radius: 12px;
+            padding: .7rem .8rem .75rem;
+            background:
+                radial-gradient(circle at 100% 0, rgba(16, 185, 129, .10), transparent 42%),
+                linear-gradient(135deg, #0b7a53 0%, #0f9d58 55%, #16b877 100%);
+            color: #eafff4;
+            box-shadow: 0 6px 18px rgba(15, 157, 88, .28);
+            overflow: hidden;
+            isolation: isolate;
+        }
+        /* perforated ticket notches on both sides */
+        .discount-ticket::before,
+        .discount-ticket::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--surface-2, #f7f9fc);
+            transform: translateY(-50%);
+            z-index: -1;
+        }
+        .discount-ticket::before { left: -8px; }
+        .discount-ticket::after { right: -8px; }
+        /* faint diagonal ribbons for a "printed ticket" feel */
+        .discount-ticket .rib {
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(115deg, rgba(255,255,255,.09) 0 8px, transparent 8px 20px);
+            opacity: .5;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .dt-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .5rem;
+            margin-bottom: .55rem;
+        }
+        .dt-label {
+            display: inline-flex;
+            align-items: center;
+            gap: .38rem;
+            font-size: .72rem;
+            font-weight: 800;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: #d6ffe9;
+        }
+        .dt-label i { color: #a7f3d0; }
+        .dt-hint {
+            font-size: .66rem;
+            color: rgba(234, 255, 244, .78);
+            font-weight: 600;
+        }
+
+        .disc-presets {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: .35rem;
+            margin-bottom: .5rem;
+        }
+        .disc-chip {
+            border: 1px solid rgba(255, 255, 255, .28);
+            background: rgba(255, 255, 255, .12);
+            color: #f2fff8;
+            border-radius: 8px;
+            padding: .34rem 0;
+            font-size: .8rem;
+            font-weight: 800;
+            font-variant-numeric: tabular-nums;
+            cursor: pointer;
+            transition: transform .12s ease, background .15s ease, box-shadow .15s ease;
+        }
+        .disc-chip:hover { background: rgba(255, 255, 255, .24); transform: translateY(-1px); }
+        .disc-chip.active {
+            background: #ffffff;
+            color: #0b7a53;
+            border-color: #ffffff;
+            box-shadow: 0 3px 10px rgba(3, 60, 36, .35);
+            transform: translateY(-1px);
+        }
+
+        .disc-custom-row {
+            display: flex;
+            align-items: center;
+            gap: .45rem;
+        }
+        .disc-input-wrap {
+            display: inline-flex;
+            align-items: center;
+            flex: 1;
+            border: 1px dashed rgba(255, 255, 255, .5);
+            background: rgba(255, 255, 255, .14);
+            border-radius: 9px;
+            overflow: hidden;
+            height: 34px;
+            transition: box-shadow .15s ease, border-color .15s ease;
+        }
+        .disc-input-wrap:focus-within {
+            border-color: #ffffff;
+            border-style: solid;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, .18);
+        }
+        .disc-prefix {
+            padding: 0 .45rem 0 .6rem;
+            font-weight: 800;
+            color: #c9ffe4;
+            font-size: .85rem;
+        }
+        .discount-percent-input {
+            flex: 1;
+            min-width: 0;
+            border: 0;
+            background: transparent;
+            text-align: center;
+            font-size: .95rem;
+            font-weight: 800;
+            color: #ffffff;
+            height: 100%;
+            -moz-appearance: textfield;
+        }
+        .discount-percent-input::-webkit-outer-spin-button,
+        .discount-percent-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .discount-percent-input:focus { outline: none; }
+        .discount-percent-input::placeholder { color: rgba(234, 255, 244, .6); font-weight: 700; }
+        .disc-suffix {
+            padding: 0 .7rem;
+            font-size: .9rem;
+            font-weight: 800;
+            color: #0b7a53;
+            background: #d6ffe9;
+            height: 100%;
+            display: inline-flex;
+            align-items: center;
+        }
+        .disc-clear {
+            width: 34px;
+            height: 34px;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, .3);
+            background: rgba(255, 255, 255, .12);
+            color: #eafff4;
+            border-radius: 9px;
+            font-size: .9rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .15s ease;
+        }
+        .disc-clear:hover { background: rgba(220, 38, 38, .9); border-color: rgba(220, 38, 38, .95); }
+
+        /* "You saved" ribbon that slides in when a discount is active */
+        .savings-ribbon {
+            margin-top: .55rem;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: .5rem;
+            background: rgba(255, 255, 255, .16);
+            border: 1px solid rgba(255, 255, 255, .22);
+            border-radius: 9px;
+            padding: .34rem .6rem;
+            animation: savePop .35s cubic-bezier(.2,.9,.3,1.3);
+        }
+        .savings-ribbon.show { display: flex; }
+        .savings-ribbon .sv-left {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            font-size: .74rem;
+            font-weight: 800;
+            color: #f2fff8;
+        }
+        .savings-ribbon .sv-left i { color: #ffe9a3; }
+        .savings-ribbon .sv-amt {
+            font-size: .86rem;
+            font-weight: 900;
+            color: #ffe9a3;
+            font-variant-numeric: tabular-nums;
+        }
+        @keyframes savePop {
+            0% { opacity: 0; transform: translateY(-6px) scale(.96); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* Totals row that lights up + count-up pulse when a discount applies */
         .summary-line.grand-total {
             font-size: 1.15rem;
             font-weight: 800;
@@ -293,8 +491,22 @@
             padding-top: .5rem;
             border-top: 2px solid var(--accent, #1554d1);
         }
-
         .summary-line.grand-total b { color: var(--accent, #1554d1); font-size: 1.25rem; }
+        .grand-total.discounted b { color: #0b7a53; }
+        .grand-total.discounted { border-top-color: #0f9d58; }
+        .grand-total b.pulse { animation: totalPulse .5s ease; }
+        @keyframes totalPulse {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.09); }
+            100% { transform: scale(1); }
+        }
+        .strike-total {
+            font-size: .8rem;
+            font-weight: 600;
+            color: var(--muted, #66748b);
+            text-decoration: line-through;
+            margin-left: .4rem;
+        }
 
         .btn-checkout-pay {
             width: 100%;
@@ -565,14 +777,47 @@
                         <span>Subtotal</span>
                         <b id="subtotalVal">₹0.00</b>
                     </div>
-                    <div class="summary-line grand-total">
+
+                    <!-- Unique discount "coupon ticket" -->
+                    <div class="discount-ticket" id="discountTicket">
+                        <span class="rib"></span>
+                        <div class="dt-head">
+                            <span class="dt-label"><i class="bi bi-ticket-perforated-fill"></i> Discount</span>
+                            <span class="dt-hint">tap a preset or type any %</span>
+                        </div>
+                        <div class="disc-presets" id="discPresets">
+                            <button type="button" class="disc-chip" data-pct="5">5%</button>
+                            <button type="button" class="disc-chip" data-pct="10">10%</button>
+                            <button type="button" class="disc-chip" data-pct="15">15%</button>
+                            <button type="button" class="disc-chip" data-pct="20">20%</button>
+                            <button type="button" class="disc-chip" data-pct="25">25%</button>
+                        </div>
+                        <div class="disc-custom-row">
+                            <span class="disc-input-wrap">
+                                <span class="disc-prefix">−</span>
+                                <input type="number" min="0" max="100" step="0.01" id="discountPercentInput" class="discount-percent-input" placeholder="0" value="0">
+                                <span class="disc-suffix">%</span>
+                            </span>
+                            <button type="button" class="disc-clear" id="discClearBtn" title="Clear discount"><i class="bi bi-x-lg"></i></button>
+                        </div>
+                        <div class="savings-ribbon" id="savingsRibbon">
+                            <span class="sv-left"><i class="bi bi-star-fill"></i> You save</span>
+                            <span class="sv-amt" id="savingsAmt">₹0.00</span>
+                        </div>
+                    </div>
+
+                    <div class="summary-line grand-total" id="grandTotalRow">
                         <span>Total Pay</span>
-                        <b id="grandTotalVal">₹0.00</b>
+                        <span>
+                            <span class="strike-total" id="strikeTotal" style="display:none;">₹0.00</span>
+                            <b id="grandTotalVal">₹0.00</b>
+                        </span>
                     </div>
 
                     <form method="POST" action="{{ route('pos_checkout') }}" id="checkoutForm" class="mt-3">
                         @csrf
                         <input type="hidden" name="cart" id="cartJsonInput">
+                        <input type="hidden" name="discount_percent" id="discountPercentInputHidden" value="0">
 
                         <div class="row g-2 mb-2">
                             <div class="col-6">
@@ -664,6 +909,12 @@
                                     <td colspan="4" class="text-end text-muted" style="font-size:.82rem;">Subtotal</td>
                                     <td class="text-end" id="confirmSubtotal">&#8377;0.00</td>
                                 </tr>
+                                <tr id="confirmDiscountRow" style="display:none;">
+                                    <td colspan="4" class="text-end" style="font-size:.82rem; color:#0b7a53; font-weight:700;">
+                                        <i class="bi bi-ticket-perforated-fill me-1"></i>Discount <span id="confirmDiscountPct"></span>
+                                    </td>
+                                    <td class="text-end fw-bold" style="color:#0b7a53;" id="confirmDiscount">&#8377;0.00</td>
+                                </tr>
                                 <tr class="confirm-grand">
                                     <td colspan="4" class="text-end">Total Pay</td>
                                     <td class="text-end" id="confirmTotal">&#8377;0.00</td>
@@ -701,6 +952,9 @@
                 $totalMrp += $lineMrp;
                 $totalDiscount += ($lineMrp - $item->total);
             }
+            // Include the order-level discount applied at checkout, so the
+            // receipt's Discount line always reconciles with the final total.
+            $totalDiscount += (float) ($lastOrder->discount_amount ?? 0);
             if ($totalMrp < $lastOrder->total) {
                 $totalMrp = $lastOrder->total;
                 $totalDiscount = 0;
@@ -846,6 +1100,122 @@
         const cartJsonInput = document.getElementById('cartJsonInput');
 
         const DUPATTA_DISCOUNT = 300;
+        const discountPercentInput = document.getElementById('discountPercentInput');
+        const discountPercentHidden = document.getElementById('discountPercentInputHidden');
+        const savingsRibbon = document.getElementById('savingsRibbon');
+        const savingsAmt = document.getElementById('savingsAmt');
+        const grandTotalRow = document.getElementById('grandTotalRow');
+        const strikeTotal = document.getElementById('strikeTotal');
+        const discPresets = document.getElementById('discPresets');
+        const discClearBtn = document.getElementById('discClearBtn');
+
+        let lastTotalShown = 0;   // for the count-up animation
+        let countUpRAF = null;
+
+        function getDiscountPercent() {
+            let pct = parseFloat(discountPercentInput.value);
+            if (isNaN(pct) || pct < 0) pct = 0;
+            if (pct > 100) pct = 100;
+            return pct;
+        }
+
+        // Apply the discount percentage to a subtotal, returns {discount, total}.
+        function applyDiscount(subtotal) {
+            const pct = getDiscountPercent();
+            const discount = Math.round(subtotal * pct) / 100;
+            return { pct: pct, discount: discount, total: Math.max(subtotal - discount, 0) };
+        }
+
+        function currentCartTotal() {
+            return cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+        }
+
+        // Smoothly roll the Total Pay figure from its old value to the new one.
+        function animateTotal(to) {
+            if (countUpRAF) cancelAnimationFrame(countUpRAF);
+            const from = lastTotalShown;
+            if (Math.abs(to - from) < 0.01) {
+                grandTotalVal.textContent = '₹' + to.toFixed(2);
+                lastTotalShown = to;
+                return;
+            }
+            const start = performance.now();
+            const dur = 380;
+            const step = (now) => {
+                const t = Math.min((now - start) / dur, 1);
+                const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+                const val = from + (to - from) * eased;
+                grandTotalVal.textContent = '₹' + val.toFixed(2);
+                if (t < 1) {
+                    countUpRAF = requestAnimationFrame(step);
+                } else {
+                    grandTotalVal.textContent = '₹' + to.toFixed(2);
+                    lastTotalShown = to;
+                    countUpRAF = null;
+                }
+            };
+            countUpRAF = requestAnimationFrame(step);
+        }
+
+        // Keep preset chips + the ticket UI in sync with the current percentage.
+        function syncDiscountUI(pct, discount, total, subtotal) {
+            // highlight the matching preset chip (exact integer match only)
+            discPresets.querySelectorAll('.disc-chip').forEach(chip => {
+                chip.classList.toggle('active', parseFloat(chip.dataset.pct) === pct);
+            });
+
+            const active = pct > 0 && discount > 0;
+            savingsRibbon.classList.toggle('show', active);
+            grandTotalRow.classList.toggle('discounted', active);
+            strikeTotal.style.display = active ? '' : 'none';
+            if (active) {
+                savingsAmt.textContent = '₹' + discount.toFixed(2);
+                strikeTotal.textContent = '₹' + subtotal.toFixed(2);
+                // little pulse on the total whenever the discount changes
+                grandTotalVal.classList.remove('pulse');
+                void grandTotalVal.offsetWidth; // reflow to restart the animation
+                grandTotalVal.classList.add('pulse');
+            }
+        }
+
+        function refreshTotals() {
+            const subtotal = currentCartTotal();
+            const d = applyDiscount(subtotal);
+            subtotalVal.textContent = '₹' + subtotal.toFixed(2);
+            discountPercentHidden.value = d.pct;
+            animateTotal(d.total);
+            syncDiscountUI(d.pct, d.discount, d.total, subtotal);
+            return d;
+        }
+
+        // Preset chips: tap to set (tap the active one again to clear).
+        discPresets.querySelectorAll('.disc-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                const pct = parseFloat(chip.dataset.pct);
+                const already = getDiscountPercent() === pct;
+                discountPercentInput.value = already ? 0 : pct;
+                refreshTotals();
+            });
+        });
+
+        // Clear button: reset the discount back to zero.
+        discClearBtn.addEventListener('click', () => {
+            discountPercentInput.value = 0;
+            refreshTotals();
+        });
+
+        discountPercentInput.addEventListener('input', () => {
+            // Clamp as the user types and refresh the totals live.
+            let pct = parseFloat(discountPercentInput.value);
+            if (!isNaN(pct) && pct > 100) discountPercentInput.value = 100;
+            if (!isNaN(pct) && pct < 0) discountPercentInput.value = 0;
+            refreshTotals();
+        });
+        discountPercentInput.addEventListener('blur', () => {
+            const pct = getDiscountPercent();
+            discountPercentInput.value = pct ? pct : 0;
+            refreshTotals();
+        });
 
         function dupattaPrice(basePrice, dupatta, discount) {
             if (dupatta !== 'without') return basePrice;
@@ -862,7 +1232,9 @@
                         Scan barcode or click a product card to add items to cart.
                     </div>`;
                 subtotalVal.textContent = '₹0.00';
-                grandTotalVal.textContent = '₹0.00';
+                animateTotal(0);
+                discountPercentHidden.value = getDiscountPercent();
+                syncDiscountUI(getDiscountPercent(), 0, 0, 0);
                 checkoutBtn.disabled = true;
                 cartJsonInput.value = '';
                 return;
@@ -902,8 +1274,7 @@
             });
 
             cartItemsWrap.innerHTML = html;
-            subtotalVal.textContent = '₹' + total.toFixed(2);
-            grandTotalVal.textContent = '₹' + total.toFixed(2);
+            refreshTotals();
             checkoutBtn.disabled = false;
             cartJsonInput.value = JSON.stringify(cart);
         }
@@ -1028,17 +1399,29 @@
             });
 
             body.innerHTML = html;
+            const d = applyDiscount(total);
             document.getElementById('confirmSubtotal').textContent = '₹' + total.toFixed(2);
-            document.getElementById('confirmTotal').textContent = '₹' + total.toFixed(2);
+            const discountRow = document.getElementById('confirmDiscountRow');
+            if (d.pct > 0 && d.discount > 0) {
+                discountRow.style.display = '';
+                document.getElementById('confirmDiscountPct').textContent = '(' + d.pct + '%)';
+                document.getElementById('confirmDiscount').textContent = '− ₹' + d.discount.toFixed(2);
+            } else {
+                discountRow.style.display = 'none';
+            }
+            document.getElementById('confirmTotal').textContent = '₹' + d.total.toFixed(2);
 
             const custName = (checkoutForm.customer_name.value || '').trim();
             const custMobile = (checkoutForm.customer_mobile.value || '').trim();
             const payment = checkoutForm.payment_mode.value;
             const units = cart.reduce((s, i) => s + i.qty, 0);
+            const totalCell = document.getElementById('confirmTotal');
+            totalCell.style.color = (d.pct > 0 && d.discount > 0) ? '#0b7a53' : '';
 
             document.getElementById('confirmMeta').innerHTML = `
                 <span><b>${units}</b> unit(s)</span>
                 <span>Payment: <b>${payment}</b></span>
+                ${d.pct > 0 && d.discount > 0 ? `<span style="color:#0b7a53;font-weight:700;"><i class="bi bi-star-fill me-1"></i>You save <b>₹${d.discount.toFixed(2)}</b> (${d.pct}%)</span>` : ''}
                 ${custName ? `<span>Customer: <b>${custName}</b></span>` : ''}
                 ${custMobile ? `<span>Mobile: <b>${custMobile}</b></span>` : ''}`;
         }

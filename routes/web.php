@@ -21,6 +21,7 @@ Route::get('/stock-management', [indexController::class, 'stock_management'])->n
 Route::get('/stock-management/export/excel', [indexController::class, 'export_stock_excel'])->name('stock_export_excel');
 Route::get('/stock-management/export/pdf', [indexController::class, 'export_stock_pdf'])->name('stock_export_pdf');
 Route::post('/stock-management/update', [MainController::class, 'updateStock'])->name('stock_update');
+Route::post('/stock-management/update-product', [MainController::class, 'updateProduct'])->name('product_update');
 Route::get('/return-product', [indexController::class, 'return_product'])->name('return_product');
 Route::post('/return-product/process', [MainController::class, 'processReturn'])->name('return_process');
 Route::get('/sell-pos', [indexController::class, 'sell_pos'])->name('sell_pos');
