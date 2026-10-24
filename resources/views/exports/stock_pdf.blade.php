@@ -9,13 +9,38 @@
         .head h1 { margin: 0; font-size: 18px; letter-spacing: 1px; color: #0f1f36; }
         .head .sub { font-size: 9px; color: #555; margin-top: 2px; }
         h2 { font-size: 12px; margin: 0 0 8px; color: #444; }
+
         table { width: 100%; border-collapse: collapse; }
-        th { background: #0f1f36; color: #fff; padding: 5px 4px; font-size: 9px; text-align: left; }
-        td { border: 1px solid #ddd; padding: 4px; }
+        th, td { border: 1px solid #ccc; padding: 4px 6px; }
+
+        /* main header row */
+        thead .main-head td {
+            background: #f4cccc;
+            font-weight: bold;
+            text-align: center;
+            color: #000;
+        }
+        thead .main-head td.name { text-align: left; }
+        /* spacer column between matrix and prices */
+        thead .main-head td.spacer,
+        tbody td.spacer,
+        tfoot td.spacer { background: #ffffff; border: none; width: 10px; }
+        /* price columns */
+        .price-head { background: #ffd966 !important; color: #000 !important; text-align: center; }
+        td.price { text-align: right; }
+
+        tbody td.name { font-weight: bold; }
+        tbody td.num { text-align: center; }
+        tbody td.total { text-align: center; font-weight: bold; }
         tr:nth-child(even) td { background: #f5f7fb; }
-        .st-out { color: #dc2626; font-weight: bold; }
-        .st-low { color: #b45309; font-weight: bold; }
-        .summary { margin-top: 14px; width: 60%; }
+        /* keep the spacer + price cells clean on zebra rows */
+        tr:nth-child(even) td.spacer { background: #ffffff; }
+
+        /* footer totals */
+        tfoot td { background: #e2efda; font-weight: bold; }
+        tfoot td.num { text-align: center; }
+
+        .summary { margin-top: 14px; width: 55%; }
         .summary td { border: none; padding: 2px 0; font-size: 10px; }
         .footer { margin-top: 16px; text-align: center; font-size: 8px; color: #888; border-top: 1px solid #ddd; padding-top: 6px; }
     </style>
@@ -30,42 +55,44 @@
 
     <table>
         <thead>
-            <tr>
-                <th style="width:4%;">ID</th>
-                <th style="width:17%;">Product</th>
-                <th style="width:9%;">Brand</th>
-                <th style="width:11%;">Type</th>
-                <th style="width:7%;">Color</th>
-                <th style="width:5%;">Size</th>
-                <th style="width:14%;">SKU</th>
-                <th style="width:13%;">Barcode</th>
-                <th style="width:5%;">Stock</th>
-                <th style="width:8%;">Price</th>
-                <th style="width:7%;">Status</th>
+            <tr class="main-head">
+                <td class="name">Product_Name</td>
+                @foreach ($sizeColumns as $size)
+                    <td>{{ $size }}</td>
+                @endforeach
+                <td>TOTAL</td>
+                <td class="spacer"></td>
+                <td class="price-head">Original Price</td>
+                <td class="price-head">Offer Price</td>
             </tr>
         </thead>
         <tbody>
-            @forelse ($products as $p)
-                @php
-                    $status = $p->stock <= 0 ? ['Out', 'st-out'] : ($p->stock < 5 ? ['Low', 'st-low'] : ['Healthy', '']);
-                @endphp
+            @forelse ($groups as $g)
                 <tr>
-                    <td>{{ $p->product_id }}</td>
-                    <td>{{ $p->product_name }}</td>
-                    <td>{{ $p->brand }}</td>
-                    <td>{{ $p->product_type }}</td>
-                    <td>{{ $p->color }}</td>
-                    <td>{{ $p->size }}</td>
-                    <td>{{ $p->sku }}</td>
-                    <td>{{ $p->barcode }}</td>
-                    <td>{{ $p->stock }}</td>
-                    <td>{{ number_format((float) $p->selling_price, 2) }}</td>
-                    <td class="{{ $status[1] }}">{{ $status[0] }}</td>
+                    <td class="name">{{ $g['name'] }}</td>
+                    @foreach ($sizeColumns as $size)
+                        <td class="num">{{ (int) ($g['bySize'][$size] ?? 0) }}</td>
+                    @endforeach
+                    <td class="total">{{ $g['total'] }}</td>
+                    <td class="spacer"></td>
+                    <td class="price">{{ $g['mrp'] !== null ? number_format((float) $g['mrp'], 0) : '' }}</td>
+                    <td class="price">{{ $g['selling_price'] !== null ? number_format((float) $g['selling_price'], 0) : '' }}</td>
                 </tr>
             @empty
-                <tr><td colspan="11" style="text-align:center;padding:14px;">No products found.</td></tr>
+                <tr><td colspan="{{ count($sizeColumns) + 5 }}" style="text-align:center;padding:14px;">No products found.</td></tr>
             @endforelse
         </tbody>
+        <tfoot>
+            <tr>
+                <td>TOTAL STOCK</td>
+                @foreach ($sizeColumns as $size)
+                    <td class="num">{{ (int) ($sizeTotals[$size] ?? 0) }}</td>
+                @endforeach
+                <td class="num">{{ $grandTotal }}</td>
+                <td class="spacer"></td>
+                <td colspan="2"></td>
+            </tr>
+        </tfoot>
     </table>
 
     <table class="summary">

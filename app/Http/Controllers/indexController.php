@@ -93,9 +93,22 @@ class indexController extends Controller
     public function export_stock_excel()
     {
         $products = Addproduct::orderBy('product_name')->orderBy('size')->get();
+        $pivot = $this->buildStockPivot($products);
 
-        // Pivot the flat per-size rows into one row per product, with a
-        // stock column per size (image-2 style matrix).
+        return response()
+            ->view('exports.stock_excel', $pivot + ['products' => $products])
+            ->header('Content-Type', 'application/vnd.ms-excel')
+            ->header('Content-Disposition', 'attachment; filename="stock-report-'.date('Ymd-His').'.xls"');
+    }
+
+    /**
+     * Pivot the flat per-size product rows into one row per product with a
+     * stock column per size (the "matrix" stock report used by the Excel and
+     * PDF exports). Returns the view payload: groups, sizeColumns,
+     * sizeTotals and grandTotal.
+     */
+    private function buildStockPivot($products)
+    {
         $standardSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
         $extraSizes = [];
 
@@ -146,26 +159,28 @@ class indexController extends Controller
                 $sizeTotals[$size] = ($sizeTotals[$size] ?? 0) + $qty;
             }
         }
-        $grandTotal = (int) $products->sum('stock');
 
-        return response()
-            ->view('exports.stock_excel', compact('products', 'groups', 'sizeColumns', 'sizeTotals', 'grandTotal'))
-            ->header('Content-Type', 'application/vnd.ms-excel')
-            ->header('Content-Disposition', 'attachment; filename="stock-report-'.date('Ymd-His').'.xls"');
+        return [
+            'groups' => $groups,
+            'sizeColumns' => $sizeColumns,
+            'sizeTotals' => $sizeTotals,
+            'grandTotal' => (int) $products->sum('stock'),
+        ];
     }
 
     public function export_stock_pdf()
     {
-        $products = Addproduct::orderBy('brand')->orderBy('product_name')->get();
+        $products = Addproduct::orderBy('product_name')->orderBy('size')->get();
+        $pivot = $this->buildStockPivot($products);
 
-        $totalStock = (int) $products->sum('stock');
+        $totalStock = $pivot['grandTotal'];
         $lowStock = $products->filter(fn ($p) => $p->stock > 0 && $p->stock < 5)->count();
         $outOfStock = $products->filter(fn ($p) => $p->stock <= 0)->count();
         $company = config('invoice.company');
 
         $pdf = Pdf::loadView(
             'exports.stock_pdf',
-            compact('products', 'totalStock', 'lowStock', 'outOfStock', 'company')
+            $pivot + compact('products', 'totalStock', 'lowStock', 'outOfStock', 'company')
         )->setPaper('a4', 'landscape');
 
         return $pdf->download('stock-report-'.date('Ymd-His').'.pdf');
