@@ -1,45 +1,47 @@
-<table border="1" cellspacing="0" cellpadding="4">
-    <tr style="background:#0f1f36;color:#ffffff;">
-        <th>ID</th>
-        <th>Product</th>
-        <th>Brand</th>
-        <th>Type</th>
-        <th>Color</th>
-        <th>Size</th>
-        <th>SKU</th>
-        <th>Barcode</th>
-        <th>Stock</th>
-        <th>Selling Price</th>
-        <th>MRP</th>
-        <th>Status</th>
+<table border="1" cellspacing="0" cellpadding="5">
+    {{-- Main header row: product + one column per size + TOTAL, then a spacer, then the two price columns --}}
+    <tr style="background:#f4cccc; color:#000000; font-weight:bold; text-align:center;">
+        <td style="text-align:left;">Product_Name</td>
+        @foreach ($sizeColumns as $size)
+            <td>{{ $size }}</td>
+        @endforeach
+        <td>TOTAL</td>
+        <td style="background:#ffffff; border:none;"></td>
+        <td style="background:#ffd966; color:#000000;">Original Price</td>
+        <td style="background:#ffd966; color:#000000;">Offer Price</td>
     </tr>
-    @forelse ($products as $p)
-        @php
-            $status = $p->stock <= 0 ? 'Out of stock' : ($p->stock < 5 ? 'Low' : 'Healthy');
-        @endphp
+
+    @forelse ($groups as $g)
         <tr>
-            <td>{{ $p->product_id }}</td>
-            <td>{{ $p->product_name }}</td>
-            <td>{{ $p->brand }}</td>
-            <td>{{ $p->product_type }}</td>
-            <td>{{ $p->color }}</td>
-            <td>{{ $p->size }}</td>
-            <td>{{ $p->sku }}</td>
-            <td>{{ $p->barcode }}</td>
-            <td>{{ $p->stock }}</td>
-            <td>{{ $p->selling_price }}</td>
-            <td>{{ $p->mrp }}</td>
-            <td>{{ $status }}</td>
+            <td style="font-weight:bold;">{{ $g['name'] }}</td>
+            @foreach ($sizeColumns as $size)
+                <td style="text-align:center;">{{ (int) ($g['bySize'][$size] ?? 0) }}</td>
+            @endforeach
+            <td style="text-align:center; font-weight:bold;">{{ $g['total'] }}</td>
+            <td style="background:#ffffff; border:none;"></td>
+            <td style="text-align:right;">{{ $g['mrp'] !== null ? number_format((float) $g['mrp'], 0) : '' }}</td>
+            <td style="text-align:right;">{{ $g['selling_price'] !== null ? number_format((float) $g['selling_price'], 0) : '' }}</td>
         </tr>
     @empty
-        <tr><td colspan="12">No products found.</td></tr>
+        <tr>
+            <td colspan="{{ count($sizeColumns) + 5 }}">No products found.</td>
+        </tr>
     @endforelse
-    <tr>
-        <td colspan="8" style="text-align:right;font-weight:bold;">TOTAL STOCK</td>
-        <td style="font-weight:bold;">{{ $products->sum('stock') }}</td>
-        <td colspan="3"></td>
+
+    {{-- Footer: total stock per size column + grand total --}}
+    <tr style="background:#e2efda; font-weight:bold;">
+        <td>TOTAL STOCK</td>
+        @foreach ($sizeColumns as $size)
+            <td style="text-align:center;">{{ (int) ($sizeTotals[$size] ?? 0) }}</td>
+        @endforeach
+        <td style="text-align:center;">{{ $grandTotal }}</td>
+        <td style="background:#ffffff; border:none;"></td>
+        <td colspan="2"></td>
     </tr>
+
     <tr>
-        <td colspan="12">Generated: {{ date('d M Y, h:i A') }} &mdash; {{ config('invoice.company.name') }}</td>
+        <td colspan="{{ count($sizeColumns) + 5 }}" style="color:#666666; font-size:10px;">
+            Generated: {{ date('d M Y, h:i A') }} &mdash; {{ config('invoice.company.name') }}
+        </td>
     </tr>
 </table>

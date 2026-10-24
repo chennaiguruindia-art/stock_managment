@@ -92,10 +92,64 @@ class indexController extends Controller
 
     public function export_stock_excel()
     {
-        $products = Addproduct::orderBy('brand')->orderBy('product_name')->get();
+        $products = Addproduct::orderBy('product_name')->orderBy('size')->get();
+
+        // Pivot the flat per-size rows into one row per product, with a
+        // stock column per size (image-2 style matrix).
+        $standardSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+        $extraSizes = [];
+
+        // Normalise size labels so "Xs"/"XS" and "2XL"/"XXL" collapse into the
+        // standard columns. Blank size is treated as FREE (one-size products).
+        $normalizeSize = function ($size) {
+            $size = strtoupper(trim((string) $size));
+            if ($size === '') {
+                return 'FREE';
+            }
+            if (in_array($size, ['2XL', 'XXL', 'X-2XL'], true)) {
+                return 'XXL';
+            }
+            if (in_array($size, ['XS', 'X-S', 'XSM'], true)) {
+                return 'XS';
+            }
+
+            return $size;
+        };
+
+        $groups = $products->groupBy('product_name')->map(function ($rows) use ($normalizeSize, $standardSizes, &$extraSizes) {
+            $bySize = [];
+            foreach ($rows as $row) {
+                $size = $normalizeSize($row->size);
+                $bySize[$size] = ($bySize[$size] ?? 0) + (int) $row->stock;
+
+                if (! in_array($size, $standardSizes, true) && ! in_array($size, $extraSizes, true)) {
+                    $extraSizes[] = $size;
+                }
+            }
+
+            return [
+                'name' => $rows->first()->product_name,
+                'bySize' => $bySize,
+                'total' => (int) $rows->sum('stock'),
+                'mrp' => $rows->firstWhere('mrp', '!=', null)?->mrp,
+                'selling_price' => $rows->firstWhere('selling_price', '!=', null)?->selling_price,
+            ];
+        })->values();
+
+        // Standard sizes first, then any other sizes found (e.g. FREE).
+        $sizeColumns = array_merge($standardSizes, array_diff($extraSizes, $standardSizes));
+
+        // Column-wise totals for the footer row.
+        $sizeTotals = [];
+        foreach ($groups as $g) {
+            foreach ($g['bySize'] as $size => $qty) {
+                $sizeTotals[$size] = ($sizeTotals[$size] ?? 0) + $qty;
+            }
+        }
+        $grandTotal = (int) $products->sum('stock');
 
         return response()
-            ->view('exports.stock_excel', compact('products'))
+            ->view('exports.stock_excel', compact('products', 'groups', 'sizeColumns', 'sizeTotals', 'grandTotal'))
             ->header('Content-Type', 'application/vnd.ms-excel')
             ->header('Content-Disposition', 'attachment; filename="stock-report-'.date('Ymd-His').'.xls"');
     }
