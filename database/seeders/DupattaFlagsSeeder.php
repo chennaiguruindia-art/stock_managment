@@ -34,10 +34,10 @@ class DupattaFlagsSeeder extends Seeder
             ->where('has_dupatta', false)
             ->update(['has_dupatta' => true]);
 
-        // Older rows can carry a NULL discount; the POS falls back to 300 anyway,
+        // Older rows can carry a NULL discount; the POS falls back to 350 anyway,
         // but store it so the bill and the popup agree on the amount.
         $priced = Addproduct::whereNull('dupatta_discount')
-            ->update(['dupatta_discount' => 300]);
+            ->update(['dupatta_discount' => 350]);
 
         $total = Addproduct::where('has_dupatta', true)->count();
 

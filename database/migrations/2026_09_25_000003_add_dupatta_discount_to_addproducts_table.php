@@ -11,7 +11,7 @@ return new class extends Migration
         if (!Schema::hasColumn('addproducts', 'dupatta_discount')) {
             Schema::table('addproducts', function (Blueprint $table) {
                 // Rupees removed from selling_price when sold without the dupatta.
-                $table->decimal('dupatta_discount', 10, 2)->default(300);
+                $table->decimal('dupatta_discount', 10, 2)->default(350);
             });
         }
     }

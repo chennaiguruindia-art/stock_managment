@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 
 /**
  * Seeds the standalone DUPATTA product - a separate, individually sellable item
- * at a flat Rs.300. It is NOT part of the dress catalog, so it is deliberately
+ * at a flat Rs.350. It is NOT part of the dress catalog, so it is deliberately
  * flagged has_dupatta = false and the POS never asks "With / Without dupatta"
  * when it is scanned or clicked.
  *
@@ -21,7 +21,7 @@ use Illuminate\Support\Str;
 class DupattaProductSeeder extends Seeder
 {
     public const NAME = 'Dupatta';
-    public const PRICE = 300.0;
+    public const PRICE = 350.0;
     public const STOCK = 50;
     public const COLOR = 'Multi';
     public const SIZE = 'Free';

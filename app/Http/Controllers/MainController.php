@@ -20,7 +20,7 @@ class MainController extends Controller
     /**
      * Flat amount removed from selling_price when a dupatta product is sold without it.
      */
-    public const DUPATTA_DISCOUNT = 300;
+    public const DUPATTA_DISCOUNT = 350;
 
     public function add_product(Request $request)
     {
@@ -199,7 +199,7 @@ class MainController extends Controller
         // A single example row so users can see the expected format.
         $example = [
             'Zyra', 'Chudi', 'Short Kurthi ', 'Red', 'M', 10,
-            799, 999, 699, '', 'Example row - delete before uploading your data.', 'Yes', 300,
+            799, 999, 699, '', 'Example row - delete before uploading your data.', 'Yes', 350,
         ];
         $sheet->fromArray($example, null, 'A2');
 
@@ -224,7 +224,7 @@ class MainController extends Controller
         ];
         $example = [
             'Zyra', 'Chudi', 'Short Kurthi ', 'Red', 'M', 10,
-            799, 999, 699, '', 'Example row - delete before uploading your data.', 'Yes', 300,
+            799, 999, 699, '', 'Example row - delete before uploading your data.', 'Yes', 350,
         ];
 
         $handle = fopen('php://temp', 'r+');

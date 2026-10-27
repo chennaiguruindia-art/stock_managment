@@ -552,7 +552,7 @@
                                     <label class="f-label" for="dupattaDiscount"><i class="bi bi-currency-rupee"></i> Without dupatta, reduce</label>
                                     <div class="f-group price-group position-relative">
                                         <span class="price-prefix">&#8377;</span>
-                                        <input id="dupattaDiscount" type="number" min="0" step="1" class="form-control f-control" placeholder="300" name="dupatta_discount" value="{{ old('dupatta_discount', 300) }}">
+                                        <input id="dupattaDiscount" type="number" min="0" step="1" class="form-control f-control" placeholder="350" name="dupatta_discount" value="{{ old('dupatta_discount', 350) }}">
                                     </div>
                                 </div>
                                 <div class="col-md-3">
@@ -661,7 +661,7 @@
             const productIdInput = document.getElementById('productIdInput');
 
             // Dupatta section: Quantity mirrors the main Stock field, and ticking
-            // the switch fills the defaults (reduce 300 / quantity 10).
+            // the switch fills the defaults (reduce 350 / quantity 10).
             const dupattaSwitch = document.getElementById('hasDupatta');
             const dupattaDiscount = document.getElementById('dupattaDiscount');
             const dupattaQty = document.getElementById('dupattaQty');
@@ -680,7 +680,7 @@
                 dupattaSwitch.addEventListener('change', () => {
                     if (!dupattaSwitch.checked) return;
                     if (!dupattaDiscount.value || parseFloat(dupattaDiscount.value) <= 0) {
-                        dupattaDiscount.value = '300';
+                        dupattaDiscount.value = '350';
                     }
                     if (!stockInput.value || parseInt(stockInput.value, 10) === 0) {
                         dupattaQty.value = '10';

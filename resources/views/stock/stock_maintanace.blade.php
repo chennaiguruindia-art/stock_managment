@@ -409,7 +409,7 @@
                                 <label class="f-label" for="edit-dupatta_discount"><i class="bi bi-scissors me-1"></i>Without dupatta, reduce</label>
                                 <div class="price-group">
                                     <span class="price-prefix">&#8377;</span>
-                                    <input type="number" step="1" min="0" class="form-control" id="edit-dupatta_discount" name="dupatta_discount" placeholder="300">
+                                    <input type="number" step="1" min="0" class="form-control" id="edit-dupatta_discount" name="dupatta_discount" placeholder="350">
                                 </div>
                             </div>
 

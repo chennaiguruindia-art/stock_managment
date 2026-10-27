@@ -711,7 +711,7 @@
                          data-price="{{ $product->selling_price ?? 0 }}"
                          data-mrp="{{ $mrpVal }}"
                          data-dupatta="{{ $product->has_dupatta ? 1 : 0 }}"
-                         data-dupatta-discount="{{ $product->dupatta_discount ?? 300 }}"
+                         data-dupatta-discount="{{ $product->dupatta_discount ?? 350 }}"
                          data-last4="{{ strtolower(substr($product->barcode, -4)) }}"
                          data-search="{{ strtolower($product->product_name . ' ' . $product->brand . ' ' . $product->sku . ' ' . $product->barcode . ' ' . $product->color . ' ' . $product->size . ' ' . $product->product_type) }}">
 
@@ -868,7 +868,7 @@
                             <i class="bi bi-scissors d-block mb-1"></i>
                             <span class="dup-label">Without Dupatta</span>
                             <span class="dup-price" id="dupWithoutPrice">&#8377;0.00</span>
-                            <span class="dup-note" id="dupSaveNote">Save &#8377;300</span>
+                            <span class="dup-note" id="dupSaveNote">Save &#8377;350</span>
                         </button>
                     </div>
                 </div>
@@ -1099,7 +1099,7 @@
         const checkoutBtn = document.getElementById('checkoutBtn');
         const cartJsonInput = document.getElementById('cartJsonInput');
 
-        const DUPATTA_DISCOUNT = 300;
+        const DUPATTA_DISCOUNT = 350;
         const discountPercentInput = document.getElementById('discountPercentInput');
         const discountPercentHidden = document.getElementById('discountPercentInputHidden');
         const savingsRibbon = document.getElementById('savingsRibbon');
@@ -1472,7 +1472,7 @@
                 price: parseFloat(card.dataset.price),
                 stock: parseInt(card.dataset.stock),
                 hasDupatta: card.dataset.dupatta === '1',
-                discount: parseFloat(card.dataset.dupattaDiscount || '300'),
+                discount: parseFloat(card.dataset.dupattaDiscount || '350'),
                 meta: [card.dataset.brand, card.dataset.type].filter(Boolean).join(' · ')
             };
         }

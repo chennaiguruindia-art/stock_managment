@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Standalone, individually sellable dupatta (Rs.300).
+        // Standalone, individually sellable dupatta (Rs.350).
         $this->call(DupattaProductSeeder::class);
 
         // Which products ship with a dupatta - drives the POS popup + card chip.
