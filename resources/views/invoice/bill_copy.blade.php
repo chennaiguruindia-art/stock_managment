@@ -553,18 +553,27 @@
         $custPhone = $order->customer_mobile ?: 'â€”';
         $instagramUrl = 'https://www.instagram.com/' . ltrim($company['instagram'] ?? '@zyraofficial46', '@') . '/';
 
-        // Calculate MRP and discount totals
+        // Calculate MRP and item-level discount totals
         $totalMrp = 0;
-        $totalDiscount = 0;
+        $itemDiscount = 0;
         foreach ($order->items as $item) {
             $mrp = $item->product?->mrp ?? ($item->price + 200);
             $lineMrp = $mrp * $item->qty;
             $totalMrp += $lineMrp;
-            $totalDiscount += ($lineMrp - $item->total);
+            $itemDiscount += ($lineMrp - $item->total);
         }
-        if ($totalMrp < $order->total) {
-            $totalMrp = $order->total;
-            $totalDiscount = 0;
+
+        // The order-level % discount (applied at POS checkout) lives on the
+        // order, not the line items, so add it in. This keeps the invoice
+        // reconciling: Total MRP - Total Discount = Grand Total.
+        $orderDiscount = (float) ($order->discount_amount ?? 0);
+        $orderDiscountPercent = (float) ($order->discount_percent ?? 0);
+        $totalDiscount = max(0, $itemDiscount) + $orderDiscount;
+
+        // Guard: if MRP data is missing/lower than the payable total, keep the
+        // displayed MRP consistent so the totals still reconcile.
+        if ($totalMrp < $order->total + $totalDiscount) {
+            $totalMrp = $order->total + $totalDiscount;
         }
 
         // Amount in words function
@@ -730,9 +739,21 @@
                     <span>Total MRP</span>
                     <span>: &#8377; {{ number_format($totalMrp, 2) }}</span>
                 </div>
+                @if ($itemDiscount > 0)
+                    <div class="price-row">
+                        <span>Product Discount</span>
+                        <span>: - &#8377; {{ number_format($itemDiscount, 2) }}</span>
+                    </div>
+                @endif
+                @if ($orderDiscountPercent > 0 || $orderDiscount > 0)
+                    <div class="price-row">
+                        <span>Discount ({{ rtrim(rtrim(number_format($orderDiscountPercent, 2), '0'), '.') }}%)</span>
+                        <span>: - &#8377; {{ number_format($orderDiscount, 2) }}</span>
+                    </div>
+                @endif
                 <div class="price-row">
                     <span>Total Discount</span>
-                    <span>: &#8377; {{ number_format($totalDiscount, 2) }}</span>
+                    <span>: - &#8377; {{ number_format($totalDiscount, 2) }}</span>
                 </div>
                 <div class="price-row">
                     <span>Shipping Charges</span>
