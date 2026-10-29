@@ -55,7 +55,16 @@
             margin-top: .25rem;
             font-variant-numeric: tabular-nums;
         }
+        .stock-stat .sub {
+            font-size: .68rem;
+            color: var(--muted, #66748b);
+            margin-top: .3rem;
+            line-height: 1.35;
+        }
+        .stock-stat .sub b { color: var(--text, #0e1726); font-weight: 700; }
         .st-total  { --tone: #1554d1; --tone-soft: #e7eefe; }
+        .st-types  { --tone: #7c3aed; --tone-soft: #f1eafd; }
+        .st-variants{ --tone: #0891b2; --tone-soft: #e2f6fb; }
         .st-healthy{ --tone: #0f9d58; --tone-soft: #e4f7ec; }
         .st-low    { --tone: #d97706; --tone-soft: #fdf1e2; }
         .st-out    { --tone: #dc2626; --tone-soft: #fdeaea; }
@@ -200,32 +209,52 @@
     @include('layouts.alerts')
 
     <div class="row g-4 mb-4">
-        <div class="col-lg-3 col-sm-6">
-            <div class="stock-stat st-total">
+        <div class="col-lg-4 col-sm-6">
+            <div class="stock-stat st-types">
                 <i class="bi bi-grid-1x2-fill icon"></i>
-                <div class="label">Total products</div>
+                <div class="label">Product types</div>
+                <div class="value">{{ $productTypes }}</div>
+                <div class="sub">Distinct product names in catalog, across <b>{{ $brands }} {{ Str::plural('brand', $brands) }}</b></div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-sm-6">
+            <div class="stock-stat st-variants">
+                <i class="bi bi-collection-fill icon"></i>
+                <div class="label">Size variants (SKUs)</div>
                 <div class="value">{{ $totalProducts }}</div>
+                <div class="sub">Size rows (XS/S/M/L&hellip;) across all products</div>
             </div>
         </div>
-        <div class="col-lg-3 col-sm-6">
-            <div class="stock-stat st-healthy">
+        <div class="col-lg-4 col-sm-6">
+            <div class="stock-stat st-total">
                 <i class="bi bi-box-seam icon"></i>
-                <div class="label">Items in stock</div>
+                <div class="label">Total stock units</div>
                 <div class="value">{{ $totalStock }}</div>
+                <div class="sub">Total pieces available in inventory</div>
             </div>
         </div>
-        <div class="col-lg-3 col-sm-6">
+        <div class="col-lg-4 col-sm-6">
+            <div class="stock-stat st-healthy">
+                <i class="bi bi-check-circle-fill icon"></i>
+                <div class="label">Healthy stock</div>
+                <div class="value">{{ $healthyStock }}</div>
+                <div class="sub">Variant rows with <b>5+</b> pieces</div>
+            </div>
+        </div>
+        <div class="col-lg-4 col-sm-6">
             <div class="stock-stat st-low">
                 <i class="bi bi-exclamation-triangle icon"></i>
                 <div class="label">Low stock</div>
                 <div class="value">{{ $lowStock }}</div>
+                <div class="sub">Variant rows with only <b>1&ndash;4</b> pieces</div>
             </div>
         </div>
-        <div class="col-lg-3 col-sm-6">
+        <div class="col-lg-4 col-sm-6">
             <div class="stock-stat st-out">
                 <i class="bi bi-bag-x icon"></i>
                 <div class="label">Out of stock</div>
                 <div class="value">{{ $outOfStock }}</div>
+                <div class="sub">Variant rows with <b>0</b> pieces</div>
             </div>
         </div>
     </div>

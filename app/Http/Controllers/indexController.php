@@ -81,13 +81,18 @@ class indexController extends Controller
     {
         $products = Addproduct::orderBy('brand')->orderBy('product_name')->get();
 
-        $totalProducts = $products->count();
-        $totalStock = (int) $products->sum('stock');
+        // Variant rows (one row per size/SKU) vs distinct product names.
+        // A single product like "Zyra Kaar Megam" has several size rows, so
+        // counting rows as "products" is misleading — show both separately.
+        $totalProducts = $products->count();                          // size variant rows (SKUs)
+        $productTypes = $products->pluck('product_name')->filter()->unique()->count(); // distinct products
+        $brands = $products->pluck('brand')->filter()->unique()->count();
+        $totalStock = (int) $products->sum('stock');                  // total pieces in stock
         $lowStock = $products->filter(fn ($p) => $p->stock > 0 && $p->stock < 5)->count();
         $outOfStock = $products->filter(fn ($p) => $p->stock <= 0)->count();
         $healthyStock = $products->filter(fn ($p) => $p->stock >= 5)->count();
 
-        return view('stock.stock_maintanace', compact('products', 'totalProducts', 'totalStock', 'lowStock', 'outOfStock', 'healthyStock'));
+        return view('stock.stock_maintanace', compact('products', 'totalProducts', 'productTypes', 'brands', 'totalStock', 'lowStock', 'outOfStock', 'healthyStock'));
     }
 
     public function export_stock_excel()
