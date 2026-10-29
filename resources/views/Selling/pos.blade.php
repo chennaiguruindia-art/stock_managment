@@ -6,55 +6,248 @@
 @section('content')
     <style>
         /* POS Terminal Styles */
-        .pos-scan-box {
-            background: linear-gradient(100deg, #0f1f36 0%, #16294a 100%);
-            border: 1px solid #16294a;
-            border-radius: var(--radius, 10px);
-            padding: .75rem .9rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 2px 8px rgba(16, 24, 40, .12);
+        /* ===== Classic POS terminal shell ===== */
+        .pos-terminal {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border, #dfe4ee);
+            border-radius: var(--radius, 12px);
+            overflow: hidden;
+            background: #e9edf4;
+            box-shadow: 0 2px 10px rgba(16, 24, 40, .08);
+        }
+
+        /* --- Dark top bar --- */
+        .pos-topbar {
+            display: flex;
+            align-items: stretch;
+            background: linear-gradient(180deg, #121c30 0%, #0a111e 100%);
+            color: #fff;
+            min-height: 54px;
+        }
+        .pos-brand {
             display: flex;
             align-items: center;
-            gap: .7rem;
+            gap: .55rem;
+            padding: .5rem .95rem;
+            background: #060b14;
         }
-
-        .pos-scan-box input[type="text"] {
+        .pos-logo {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.05rem;
+            box-shadow: 0 2px 6px rgba(239, 68, 68, .4);
+        }
+        .pos-brand-name {
+            font-weight: 800;
+            font-size: .92rem;
+            line-height: 1.05;
+            letter-spacing: .02em;
+            white-space: nowrap;
+        }
+        .pos-brand-name span {
+            display: block;
+            font-size: .55rem;
+            font-weight: 700;
+            letter-spacing: .24em;
+            color: #8fa6c9;
+            text-transform: uppercase;
+        }
+        .pos-echo {
             flex: 1;
             min-width: 0;
-            border: 0;
-            border-radius: 8px;
-            padding: .6rem .9rem;
+            display: flex;
+            align-items: center;
+            gap: .55rem;
+            padding: .5rem 1rem;
             font-family: ui-monospace, Consolas, monospace;
-            font-size: .98rem;
+            font-size: .92rem;
+            font-weight: 700;
+            color: #e7edf7;
+            border-left: 1px solid rgba(255, 255, 255, .08);
+            border-right: 1px solid rgba(255, 255, 255, .08);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        .pos-echo .echo-name { color: #ffffff; }
+        .pos-echo .echo-mrp { color: #93c5fd; }
+        .pos-echo .echo-eq { color: #4ade80; }
+        .pos-echo .echo-empty {
+            color: #7f90ab;
+            font-weight: 600;
+            font-size: .8rem;
+            font-family: inherit;
+        }
+        .pos-topright {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: .4rem .95rem;
+            text-align: right;
+            white-space: nowrap;
+        }
+        .pos-billno {
+            font-size: .62rem;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: #8fa6c9;
+        }
+        .pos-billno span { color: #fff; font-weight: 800; }
+        .pos-clock {
+            font-family: ui-monospace, Consolas, monospace;
+            font-size: .78rem;
+            font-weight: 700;
+            color: #4ade80;
+        }
+
+        /* --- Bottom quick-entry bar (classic POS item entry row) --- */
+        .pos-entry {
+            display: flex;
+            align-items: center;
+            gap: .6rem;
+            flex-wrap: wrap;
+            background: #ffffff;
+            border-top: 1px solid var(--border, #dfe4ee);
+            padding: .55rem .8rem;
+        }
+        .pos-entry .fld { display: flex; flex-direction: column; gap: .18rem; }
+        .pos-entry label {
+            font-size: .56rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: var(--muted, #66748b);
+        }
+        .pos-entry input {
+            border: 1px solid var(--border-strong, #c5cede);
+            border-radius: 6px;
+            padding: .4rem .6rem;
+            font-size: .86rem;
+            height: 34px;
+            background: #fff;
+            color: var(--text, #0e1726);
+        }
+        .pos-entry input:focus {
+            outline: none;
+            border-color: var(--accent, #1554d1);
+            box-shadow: 0 0 0 3px rgba(21, 84, 209, .13);
+        }
+        #barcodeInput {
+            min-width: 230px;
+            font-family: ui-monospace, Consolas, monospace;
             font-weight: 600;
         }
-
-        .pos-scan-box .qty-input {
-            width: 70px;
+        #scanQty { width: 66px; text-align: center; font-weight: 800; }
+        .pos-entry .entry-add {
+            align-self: flex-end;
             border: 0;
-            border-radius: 8px;
-            padding: .6rem .5rem;
-            text-align: center;
-            font-weight: 700;
-            font-size: .95rem;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .pos-scan-box button {
-            border: 0;
-            border-radius: 8px;
+            border-radius: 6px;
             background: var(--accent, #1554d1);
             color: #fff;
-            font-weight: 700;
-            font-size: .875rem;
-            padding: .6rem 1.1rem;
+            font-weight: 800;
+            font-size: .84rem;
+            height: 34px;
+            padding: 0 1.1rem;
             display: inline-flex;
             align-items: center;
             gap: .4rem;
-            transition: background .15s ease;
+            cursor: pointer;
+        }
+        .pos-entry .entry-add:hover { background: var(--accent-strong, #1043a8); }
+        .pos-entry .entry-hint {
+            align-self: flex-end;
+            font-size: .68rem;
+            color: var(--muted, #66748b);
+            margin-left: auto;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+        }
+        .pos-entry .entry-hint kbd {
+            background: var(--surface-3, #eaeff7);
+            border: 1px solid var(--border-strong, #c5cede);
+            border-radius: 4px;
+            padding: 0 .3rem;
+            font-family: inherit;
+            font-size: .66rem;
+            font-weight: 700;
+            margin: 0 .12rem;
         }
 
-        .pos-scan-box button:hover { background: var(--accent-strong, #1043a8); }
+        /* --- Blue function-key strip --- */
+        .pos-fkeys {
+            display: flex;
+            gap: 2px;
+            background: #060b14;
+            padding: 4px 5px;
+            overflow-x: auto;
+        }
+        .pos-fkey {
+            flex: 1;
+            min-width: 96px;
+            border: 0;
+            background: linear-gradient(180deg, #2563eb 0%, #1554d1 100%);
+            color: #fff;
+            font-size: .66rem;
+            font-weight: 800;
+            letter-spacing: .04em;
+            padding: .48rem .3rem;
+            border-radius: 3px;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: background .12s ease, transform .1s ease;
+        }
+        .pos-fkey:hover { background: linear-gradient(180deg, #3b82f6 0%, #1d63e6 100%); }
+        .pos-fkey:active { transform: translateY(1px); }
+        .pos-fkey kbd {
+            background: rgba(255, 255, 255, .2);
+            border: 0;
+            border-radius: 3px;
+            padding: 0 .28rem;
+            margin-right: .25rem;
+            font-family: inherit;
+            font-size: .64rem;
+            font-weight: 800;
+        }
+        .pos-fkey.fkey-cancel { background: linear-gradient(180deg, #64748b 0%, #475569 100%); }
+        .pos-fkey.fkey-cancel:hover { background: linear-gradient(180deg, #7c8ba1 0%, #56657c 100%); }
+        .pos-fkey.fkey-tender { background: linear-gradient(180deg, #12b76a 0%, #0f9d58 100%); }
+        .pos-fkey.fkey-tender:hover { background: linear-gradient(180deg, #17c977 0%, #12ad64 100%); }
+
+        /* --- Bottom status bar --- */
+        .pos-status {
+            display: flex;
+            align-items: center;
+            gap: 1.15rem;
+            flex-wrap: wrap;
+            background: #111a2b;
+            color: #9fb0c9;
+            font-size: .63rem;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            padding: .34rem .85rem;
+        }
+        .pos-status b { color: #e7edf7; font-weight: 700; }
+        .pos-status .st-right { margin-left: auto; color: #4ade80; font-weight: 700; }
+        .pos-status .st-right::before {
+            content: "";
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #4ade80;
+            margin-right: .35rem;
+            vertical-align: middle;
+        }
 
         .pos-controls {
             display: flex;
@@ -110,7 +303,7 @@
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
             gap: .8rem;
-            max-height: 540px;
+            max-height: 430px;
             overflow-y: auto;
             padding-right: .3rem;
         }
@@ -169,33 +362,228 @@
             font-variant-numeric: tabular-nums;
         }
 
-        /* Cart Panel */
-        .cart-panel-card {
-            border-radius: var(--radius, 10px);
-            background: #ffffff;
-            border: 1px solid var(--border, #dfe4ee);
-            box-shadow: var(--shadow, 0 1px 2px rgba(16, 24, 40, .05));
+        /* ===== Body split: bill grid (left) + totals sidebar (right) ===== */
+        .pos-body {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 324px;
+            background: var(--border, #dfe4ee);
+            gap: 1px;
+        }
+        @media (max-width: 1199.98px) {
+            .pos-body { grid-template-columns: 1fr; }
+        }
+        .pos-left {
+            background: #fff;
+            min-width: 0;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
-            height: 100%;
         }
 
-        .cart-header {
-            padding: .85rem 1.05rem;
-            background: linear-gradient(100deg, #0f1f36 0%, #16294a 100%);
-            color: #ffffff;
+        /* --- Current bill grid (classic item table) --- */
+        .pos-bill { display: flex; flex-direction: column; background: #fff; }
+        .pos-bill-head {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: .6rem;
+            padding: .45rem .8rem;
+            background: linear-gradient(100deg, #0f1f36 0%, #16294a 100%);
+            color: #fff;
         }
-
-        .cart-title {
-            font-size: .92rem;
-            font-weight: 700;
-            display: flex;
+        .pos-bill-title {
+            font-size: .7rem;
+            font-weight: 800;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            display: inline-flex;
             align-items: center;
             gap: .45rem;
+        }
+        .pos-bill-title .bill-id {
+            color: #8fa6c9;
+            font-weight: 700;
+            letter-spacing: .06em;
+        }
+        .pos-bill-title .bill-id b { color: #fff; }
+        .cart-items-wrap {
+            overflow-y: auto;
+            padding: 0;
+            min-height: 168px;
+            max-height: 320px;
+            background: #fff;
+        }
+
+        .pos-bill-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .83rem;
+        }
+        .pos-bill-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background: #1b3f9c;
+            color: #fff;
+            font-size: .6rem;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            padding: .48rem .5rem;
+            text-align: left;
+            white-space: nowrap;
+            border-right: 1px solid rgba(255, 255, 255, .14);
+        }
+        .pos-bill-table thead th:last-child { border-right: 0; }
+        .pos-bill-table td {
+            padding: .4rem .5rem;
+            border-top: 1px solid #e6ebf4;
+            vertical-align: middle;
+        }
+        .pos-bill-table tbody tr:nth-child(even) { background: #f5f8fd; }
+        .pos-bill-table tbody tr:hover { background: #e9f1fe; }
+        .pos-bill-table tbody tr.selected {
+            background: linear-gradient(180deg, #1d63e6 0%, #1554d1 100%);
+            color: #fff;
+        }
+        .pos-bill-table tbody tr.selected .ci-name { color: #fff; }
+        .pos-bill-table tbody tr.selected .ci-flag.with { background: rgba(255,255,255,.18); color:#fff; border-color: rgba(255,255,255,.35); }
+        .pos-bill-table tbody tr.selected .ci-flag.without { background: rgba(255,255,255,.16); color:#ffedd5; border-color: rgba(255,255,255,.3); }
+        .pos-bill-table tbody tr.selected .text-muted,
+        .pos-bill-table tbody tr.selected .col-disc { color: #dbe7ff !important; }
+        .pos-bill-table .col-no   { width: 40px; text-align: center; color: var(--muted, #66748b); font-variant-numeric: tabular-nums; }
+        .pos-bill-table .col-mrp  { width: 84px; text-align: right; white-space: nowrap; color: var(--muted, #66748b); text-decoration: line-through; font-size: .78rem; }
+        .pos-bill-table .col-qty  { width: 106px; text-align: center; }
+        .pos-bill-table .col-price{ width: 84px; text-align: right; white-space: nowrap; }
+        .pos-bill-table .col-amt  { width: 88px; text-align: right; white-space: nowrap; color: var(--muted, #66748b); }
+        .pos-bill-table .col-disc { width: 78px; text-align: right; white-space: nowrap; color: #0b7a53; font-weight: 700; font-size: .78rem; }
+        .pos-bill-table .col-net  { width: 100px; text-align: right; white-space: nowrap; font-weight: 800; font-variant-numeric: tabular-nums; }
+        .pos-bill-table .col-x    { width: 34px; text-align: center; }
+        .pos-bill-table .col-desc { min-width: 150px; }
+        .pos-bill-table .ci-name {
+            font-weight: 700;
+            font-size: .84rem;
+            color: var(--text, #0e1726);
+            line-height: 1.2;
+        }
+        .pos-bill-table .row-remove {
+            border: 0;
+            background: transparent;
+            color: #dc2626;
+            font-size: .92rem;
+            cursor: pointer;
+            opacity: .55;
+            padding: 0;
+        }
+        .pos-bill-table .row-remove:hover { opacity: 1; }
+        .pos-bill-table tr.selected .row-remove { color: #fecaca; opacity: 1; }
+        .pos-bill-table .pos-empty-cell {
+            text-align: center;
+            padding: 1.6rem 1rem !important;
+            color: var(--muted, #66748b);
+            font-size: .84rem;
+        }
+        .pos-bill-table .pos-empty-cell i { display: block; font-size: 1.5rem; opacity: .35; margin-bottom: .3rem; }
+
+        /* --- Item lookup (catalog) panel --- */
+        .pos-lookup { border-top: 1px solid var(--border, #dfe4ee); padding: .8rem .9rem .9rem; background: #fff; flex: 1; }
+        .pos-lookup-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .6rem;
+            margin-bottom: .6rem;
+        }
+        .pos-lookup-title {
+            font-size: .66rem;
+            font-weight: 800;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: var(--muted, #66748b);
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+        }
+        .pos-lookup-title i { color: var(--accent, #1554d1); }
+
+        /* --- Right totals sidebar --- */
+        .pos-side {
+            background: #fff;
+            padding: .75rem .7rem;
+            display: flex;
+            flex-direction: column;
+            gap: .6rem;
+            min-width: 0;
+        }
+        .side-card {
+            border: 1px solid var(--border, #dfe4ee);
+            border-radius: 8px;
+            overflow: hidden;
+            background: var(--surface-2, #f7f9fc);
+        }
+        .side-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: .5rem;
+            padding: .42rem .7rem;
+            font-size: .79rem;
+            color: var(--muted, #66748b);
+            border-bottom: 1px solid #e9edf5;
+            font-variant-numeric: tabular-nums;
+        }
+        .side-row:last-child { border-bottom: 0; }
+        .side-row b { color: var(--text, #0e1726); font-weight: 700; }
+        .side-row .disc-val { color: #0b7a53; font-weight: 800; }
+
+        /* --- Big green NET block (classic POS) --- */
+        .pos-net {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: .6rem;
+            border-radius: 8px;
+            padding: .75rem .9rem;
+            background: linear-gradient(180deg, #16b877 0%, #0f9d58 55%, #0b7a53 100%);
+            color: #ffffff;
+            box-shadow: 0 6px 16px rgba(15, 157, 88, .35);
+        }
+        .pos-net .net-label {
+            font-size: .72rem;
+            font-weight: 900;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            color: #d9ffe9;
+        }
+        .pos-net .net-right { text-align: right; line-height: 1.1; }
+        .pos-net .strike-total {
+            display: block;
+            font-size: .72rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, .75);
+            text-decoration: line-through;
+            margin: 0 0 .1rem;
+        }
+        .pos-net .net-value {
+            font-size: 1.55rem;
+            font-weight: 900;
+            color: #ffffff;
+            font-variant-numeric: tabular-nums;
+            display: inline-block;
+        }
+        .pos-net .net-value.pulse { animation: totalPulse .5s ease; }
+        @keyframes totalPulse {
+            0% { transform: scale(1); }
+            40% { transform: scale(1.09); }
+            100% { transform: scale(1); }
+        }
+
+        .side-label {
+            font-size: .58rem;
+            font-weight: 800;
+            letter-spacing: .14em;
+            text-transform: uppercase;
+            color: var(--muted, #66748b);
+            margin: .1rem 0 -.2rem;
         }
 
         .btn-clear-cart {
@@ -210,31 +598,6 @@
         }
 
         .btn-clear-cart:hover { background: rgba(220, 38, 38, .85); border-color: rgba(220, 38, 38, .9); color: #fff; }
-
-        .cart-items-wrap {
-            flex: 1;
-            overflow-y: auto;
-            padding: .75rem 1rem;
-            min-height: 250px;
-            max-height: 380px;
-        }
-
-        .cart-item-row {
-            display: flex;
-            align-items: center;
-            gap: .6rem;
-            padding: .55rem 0;
-            border-bottom: 1px dashed var(--border, #dfe4ee);
-        }
-
-        .ci-name {
-            font-weight: 700;
-            font-size: .85rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            color: var(--text, #0e1726);
-        }
 
         .ci-qty-ctrl {
             display: flex;
@@ -267,12 +630,6 @@
             font-weight: 700;
             font-size: .85rem;
             font-variant-numeric: tabular-nums;
-        }
-
-        .cart-checkout-footer {
-            border-top: 1px solid var(--border, #dfe4ee);
-            background: var(--surface-2, #f7f9fc);
-            padding: .9rem 1.05rem;
         }
 
         .summary-line {
@@ -512,19 +869,24 @@
             width: 100%;
             border: 0;
             border-radius: 8px;
-            background: var(--accent, #1554d1);
+            background: linear-gradient(180deg, #2563eb 0%, #1554d1 100%);
             color: #ffffff;
-            font-weight: 700;
+            font-weight: 900;
             font-size: .95rem;
-            padding: .75rem;
-            margin-top: .75rem;
-            box-shadow: 0 3px 10px rgba(21, 84, 209, .28);
+            letter-spacing: .1em;
+            text-transform: uppercase;
+            padding: .85rem;
+            box-shadow: 0 4px 14px rgba(21, 84, 209, .4);
             transition: all .15s ease;
         }
 
-        .btn-checkout-pay:hover:not(:disabled) { background: var(--accent-strong, #1043a8); }
+        .btn-checkout-pay:hover:not(:disabled) { background: linear-gradient(180deg, #3b82f6 0%, #1d63e6 100%); }
 
-        .btn-checkout-pay:disabled { background: #b9c4d6; box-shadow: none; cursor: not-allowed; }
+        .btn-checkout-pay:disabled {
+            background: linear-gradient(180deg, #b9c4d6 0%, #9dabc1 100%);
+            box-shadow: none;
+            cursor: not-allowed;
+        }
 
         /* Small dupatta flag shown inside a cart line */
         .ci-flag {
@@ -664,31 +1026,78 @@
 
     @include('layouts.alerts')
 
-    <div class="row g-4">
-        <!-- Left Catalog & Scan -->
-        <div class="col-lg-7 col-xl-8">
-            <!-- Barcode Scan Box -->
-            <div class="pos-scan-box">
-                <i class="bi bi-upc-scan text-white fs-4"></i>
-                <input type="text" id="barcodeInput" placeholder="Scan barcode or type last 4 digits..." autocomplete="off">
-                <input type="number" id="scanQty" class="qty-input" value="1" min="1">
-                <button id="scanAddBtn" type="button"><i class="bi bi-plus-circle-fill"></i> Add</button>
+    <div class="pos-terminal">
+        <!-- Dark top bar (classic POS header) -->
+        <div class="pos-topbar">
+            <div class="pos-brand">
+                <span class="pos-logo"><i class="bi bi-snow2"></i></span>
+                <div class="pos-brand-name">Zyra Billing<span>Enterprise POS</span></div>
             </div>
+            <div class="pos-echo" id="posEcho">
+                <span class="echo-empty"><i class="bi bi-upc-scan me-1"></i>Ready &mdash; scan a barcode or tap a product to start billing</span>
+            </div>
+            <div class="pos-topright">
+                <div class="pos-billno">Bill No <span>{{ $nextOrderId }}</span></div>
+                <div class="pos-clock" id="posClock">--:--:--</div>
+            </div>
+        </div>
 
-            <!-- Filters -->
-            <div class="pos-controls">
-                <input type="text" id="catalogSearch" class="pos-search-input" placeholder="Search by product name, brand, SKU or barcode...">
-
-                <div class="category-pills" id="categoryPills">
-                    <button class="category-pill active" data-cat="ALL">All Products</button>
-                    @php
-                        $types = $products->pluck('product_type')->filter()->unique()->values();
-                    @endphp
-                    @foreach ($types as $t)
-                        <button class="category-pill" data-cat="{{ strtolower($t) }}">{{ $t }}</button>
-                    @endforeach
+        <!-- Main split: current bill + lookup (left) / totals sidebar (right) -->
+        <div class="pos-body">
+            <div class="pos-left">
+                <!-- Current bill grid -->
+                <div class="pos-bill">
+                    <div class="pos-bill-head">
+                        <span class="pos-bill-title"><i class="bi bi-receipt-cutoff"></i> Current Bill <span class="bill-id">Order ID <b>{{ $nextOrderId }}</b></span></span>
+                        <button type="button" class="btn-clear-cart" id="clearCartBtn"><i class="bi bi-trash"></i> Clear &middot; F4</button>
+                    </div>
+                    <div class="cart-items-wrap" id="cartItemsWrap">
+                        <table class="pos-bill-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-no">S.NO</th>
+                                    <th class="col-desc">Description</th>
+                                    <th class="col-mrp">MRP</th>
+                                    <th class="col-qty">Qty</th>
+                                    <th class="col-price">Price</th>
+                                    <th class="col-amt">Amount</th>
+                                    <th class="col-disc">Disc</th>
+                                    <th class="col-net">Net Amount</th>
+                                    <th class="col-x"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="9" class="pos-empty-cell">
+                                        <i class="bi bi-cart-x"></i>
+                                        Cart is empty &mdash; scan a barcode or tap a product below to add items.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            </div>
+
+                <!-- Item lookup -->
+                <div class="pos-lookup">
+                    <div class="pos-lookup-head">
+                        <span class="pos-lookup-title"><i class="bi bi-grid-3x2-gap-fill"></i> Item lookup &mdash; tap a card or scan to add</span>
+                    </div>
+
+                    <!-- Filters -->
+                    <div class="pos-controls">
+                        <input type="text" id="catalogSearch" class="pos-search-input" placeholder="Search by product name, brand, SKU or barcode...">
+
+                        <div class="category-pills" id="categoryPills">
+                            <button class="category-pill active" data-cat="ALL">All Products</button>
+                            @php
+                                $types = $products->pluck('product_type')->filter()->unique()->values();
+                            @endphp
+                            @foreach ($types as $t)
+                                <button class="category-pill" data-cat="{{ strtolower($t) }}">{{ $t }}</button>
+                            @endforeach
+                        </div>
+                    </div>
 
             <!-- Products Grid -->
             <div class="pos-grid" id="productGrid">
@@ -750,33 +1159,20 @@
                     No products matching search query.
                 </div>
             </div>
-        </div>
+                </div>
+            </div>
 
-        <!-- Right Billing Cart -->
-        <div class="col-lg-5 col-xl-4">
-            <div class="cart-panel-card">
-                <div class="cart-header">
-                    <div>
-                        <div class="cart-title"><i class="bi bi-cart3"></i> Billing Cart</div>
-                        <div style="font-size:.68rem;font-weight:700;letter-spacing:.08em;color:#8fa6c9;text-transform:uppercase;">
-                            Order ID&nbsp;: <span style="color:#ffffff;">{{ $nextOrderId }}</span>
-                        </div>
-                    </div>
-                    <button type="button" class="btn-clear-cart" id="clearCartBtn"><i class="bi bi-trash"></i> Clear</button>
+            <!-- Right: totals sidebar (classic POS right panel) -->
+            <aside class="pos-side">
+                <div class="side-card">
+                    <div class="side-row"><span>Total Items</span><b id="totalItemsVal">0</b></div>
+                    <div class="side-row"><span>Total Qty</span><b id="totalQtyVal">0</b></div>
+                    <div class="side-row"><span>Sub Total</span><b id="subtotalVal">₹0.00</b></div>
+                    <div class="side-row"><span>Discount</span><b class="disc-val" id="discountSummaryVal">&minus; ₹0.00</b></div>
+                    <div class="side-row"><span>Round Off</span><b>₹0.00</b></div>
                 </div>
 
-                <div class="cart-items-wrap" id="cartItemsWrap">
-                    <div class="text-center text-muted py-5" id="emptyCartState">
-                        <i class="bi bi-cart-x fs-1 opacity-25 d-block mb-2"></i>
-                        Scan barcode or click a product card to add items to cart.
-                    </div>
-                </div>
-
-                <div class="cart-checkout-footer">
-                    <div class="summary-line">
-                        <span>Subtotal</span>
-                        <b id="subtotalVal">₹0.00</b>
-                    </div>
+                <div class="side-label">Discount &mdash; order level</div>
 
                     <!-- Unique discount "coupon ticket" -->
                     <div class="discount-ticket" id="discountTicket">
@@ -806,42 +1202,79 @@
                         </div>
                     </div>
 
-                    <div class="summary-line grand-total" id="grandTotalRow">
-                        <span>Total Pay</span>
-                        <span>
-                            <span class="strike-total" id="strikeTotal" style="display:none;">₹0.00</span>
-                            <b id="grandTotalVal">₹0.00</b>
-                        </span>
+                <!-- Big green NET block -->
+                <div class="pos-net" id="grandTotalRow">
+                    <span class="net-label">Net</span>
+                    <span class="net-right">
+                        <span class="strike-total" id="strikeTotal" style="display:none;">₹0.00</span>
+                        <span class="net-value" id="grandTotalVal">₹0.00</span>
+                    </span>
+                </div>
+
+                <form method="POST" action="{{ route('pos_checkout') }}" id="checkoutForm">
+                    @csrf
+                    <input type="hidden" name="cart" id="cartJsonInput">
+                    <input type="hidden" name="discount_percent" id="discountPercentInputHidden" value="0">
+
+                    <div class="side-label">Customer</div>
+                    <div class="row g-2 mb-2">
+                        <div class="col-6">
+                            <input type="text" name="customer_name" class="form-control form-control-sm" placeholder="Customer Name" maxlength="100" value="{{ old('customer_name') }}" style="border-radius:8px;" required>
+                        </div>
+                        <div class="col-6">
+                            <input type="text" name="customer_mobile" class="form-control form-control-sm" placeholder="Mobile No" maxlength="20" value="{{ old('customer_mobile') }}" style="border-radius:8px;" required>
+                        </div>
                     </div>
 
-                    <form method="POST" action="{{ route('pos_checkout') }}" id="checkoutForm" class="mt-3">
-                        @csrf
-                        <input type="hidden" name="cart" id="cartJsonInput">
-                        <input type="hidden" name="discount_percent" id="discountPercentInputHidden" value="0">
+                    <div class="mb-2">
+                        <select name="payment_mode" class="form-select form-select-sm fw-semibold" style="border-radius:8px;">
+                            <option value="Online UPI" selected>Payment Mode: Online UPI</option>
+                            <option value="Counter Cash">Payment Mode: Counter Cash</option>
+                            <option value="Credit / Debit Card">Payment Mode: Credit / Debit Card</option>
+                        </select>
+                    </div>
 
-                        <div class="row g-2 mb-2">
-                            <div class="col-6">
-                                <input type="text" name="customer_name" class="form-control form-control-sm" placeholder="Customer Name" maxlength="100" value="{{ old('customer_name') }}" style="border-radius:8px;" required>
-                            </div>
-                            <div class="col-6">
-                                <input type="text" name="customer_mobile" class="form-control form-control-sm" placeholder="Mobile No" maxlength="20" value="{{ old('customer_mobile') }}" style="border-radius:8px;" required>
-                            </div>
-                        </div>
+                    <button type="submit" class="btn-checkout-pay" id="checkoutBtn" disabled>
+                        <i class="bi bi-cash-stack me-1"></i> Tender &middot; Complete Order
+                    </button>
+                </form>
+            </aside>
+        </div>
 
-                        <div class="mb-2">
-                            <select name="payment_mode" class="form-select form-select-sm fw-semibold" style="border-radius:8px;">
-                                <option value="Online UPI" selected>Payment Mode: Online UPI</option>
-                                <option value="Counter Cash">Payment Mode: Counter Cash</option>
-                                <option value="Credit / Debit Card">Payment Mode: Credit / Debit Card</option>
-                            </select>
-                        </div>
+        <!-- Bottom quick-entry row (classic POS item entry) -->
+        <div class="pos-entry">
+            <span class="fld">
+                <label for="barcodeInput">Item / Barcode</label>
+                <input type="text" id="barcodeInput" placeholder="Scan barcode or type last 4 digits..." autocomplete="off">
+            </span>
+            <span class="fld">
+                <label for="scanQty">Qty</label>
+                <input type="number" id="scanQty" class="qty-input" value="1" min="1">
+            </span>
+            <button id="scanAddBtn" type="button" class="entry-add"><i class="bi bi-plus-circle-fill"></i> Add</button>
+            <span class="entry-hint"><kbd>Enter</kbd> adds item &nbsp;&middot;&nbsp; <kbd>F3</kbd> scan &nbsp;&middot;&nbsp; <kbd>F2</kbd> search</span>
+        </div>
 
-                        <button type="submit" class="btn-checkout-pay" id="checkoutBtn" disabled>
-                            <i class="bi bi-check-circle-fill me-1"></i> Complete Order
-                        </button>
-                    </form>
-                </div>
-            </div>
+        <!-- Blue function-key strip -->
+        <div class="pos-fkeys">
+            <button type="button" class="pos-fkey" data-fk="search"><kbd>F2</kbd>Search</button>
+            <button type="button" class="pos-fkey" data-fk="scan"><kbd>F3</kbd>Scan</button>
+            <button type="button" class="pos-fkey fkey-cancel" data-fk="cancel"><kbd>F4</kbd>Cancel</button>
+            <button type="button" class="pos-fkey fkey-tender" data-fk="tender"><kbd>F5</kbd>Tender</button>
+            <button type="button" class="pos-fkey" data-fk="discount"><kbd>F6</kbd>Discount</button>
+            <button type="button" class="pos-fkey" data-fk="customer"><kbd>F7</kbd>Customer</button>
+            <button type="button" class="pos-fkey" data-fk="clearsearch"><kbd>F10</kbd>Clear Search</button>
+        </div>
+
+        <!-- Status bar -->
+        <div class="pos-status">
+            <span>Operation: <b>Sale</b></span>
+            <span>Terminal: <b>T-01</b></span>
+            <span>Shift: <b>Day</b></span>
+            <span>Cashier: <b>{{ auth()->user()->name ?? 'Admin' }}</b></span>
+            <span>Bill Mode: <b>Auto</b></span>
+            <span>Items: <b id="statusItems">0</b></span>
+            <span class="st-right">Mode: Online</span>
         </div>
     </div>
 
@@ -1108,9 +1541,15 @@
         const strikeTotal = document.getElementById('strikeTotal');
         const discPresets = document.getElementById('discPresets');
         const discClearBtn = document.getElementById('discClearBtn');
+        const totalItemsVal = document.getElementById('totalItemsVal');
+        const totalQtyVal = document.getElementById('totalQtyVal');
+        const discountSummaryVal = document.getElementById('discountSummaryVal');
+        const statusItems = document.getElementById('statusItems');
+        const posEcho = document.getElementById('posEcho');
 
         let lastTotalShown = 0;   // for the count-up animation
         let countUpRAF = null;
+        let countUpFallback = null;
 
         function getDiscountPercent() {
             let pct = parseFloat(discountPercentInput.value);
@@ -1133,6 +1572,7 @@
         // Smoothly roll the Total Pay figure from its old value to the new one.
         function animateTotal(to) {
             if (countUpRAF) cancelAnimationFrame(countUpRAF);
+            clearTimeout(countUpFallback);
             const from = lastTotalShown;
             if (Math.abs(to - from) < 0.01) {
                 grandTotalVal.textContent = '₹' + to.toFixed(2);
@@ -1155,6 +1595,15 @@
                 }
             };
             countUpRAF = requestAnimationFrame(step);
+
+            // Fallback: rAF may be throttled/paused (background tab, non-compositing
+            // window). Guarantee the total still lands on the final value.
+            clearTimeout(countUpFallback);
+            countUpFallback = setTimeout(() => {
+                grandTotalVal.textContent = '₹' + to.toFixed(2);
+                lastTotalShown = to;
+                countUpRAF = null;
+            }, dur + 60);
         }
 
         // Keep preset chips + the ticket UI in sync with the current percentage.
@@ -1178,6 +1627,33 @@
             }
         }
 
+        // Keep the right sidebar counters and every row's Disc/Net in step
+        // with the current order-level discount percentage.
+        function updateSideTotals(subtotal, pct) {
+            const units = cart.reduce((s, i) => s + i.qty, 0);
+            const discount = Math.round(subtotal * pct) / 100;
+
+            if (totalItemsVal) totalItemsVal.textContent = cart.length;
+            if (totalQtyVal) totalQtyVal.textContent = units;
+            if (discountSummaryVal) {
+                discountSummaryVal.textContent = (discount > 0 ? '− ' : '') + '₹' + discount.toFixed(2);
+            }
+            if (statusItems) statusItems.textContent = cart.length + ' lines · ' + units + ' units';
+
+            cartItemsWrap.querySelectorAll('tr[data-row]').forEach(tr => {
+                const netEl = tr.querySelector('.col-net');
+                const discEl = tr.querySelector('.col-disc');
+                const amtEl = tr.querySelector('.col-amt');
+                if (!netEl) return;
+                const base = parseFloat(netEl.dataset.base || '0');
+                const amt = amtEl ? parseFloat(amtEl.dataset.amt || '0') : 0;
+                const net = base * (1 - pct / 100);
+                const disc = Math.max(amt - net, 0);
+                netEl.textContent = '₹' + net.toFixed(2);
+                if (discEl) discEl.textContent = (disc > 0 ? '− ' : '') + '₹' + disc.toFixed(2);
+            });
+        }
+
         function refreshTotals() {
             const subtotal = currentCartTotal();
             const d = applyDiscount(subtotal);
@@ -1185,6 +1661,7 @@
             discountPercentHidden.value = d.pct;
             animateTotal(d.total);
             syncDiscountUI(d.pct, d.discount, d.total, subtotal);
+            updateSideTotals(subtotal, d.pct);
             return d;
         }
 
@@ -1224,19 +1701,46 @@
             return Math.max(basePrice - cut, 0);
         }
 
+        // Build the classic bill-grid table shell (header + body rows).
+        function billTable(rowsHtml) {
+            return `
+                <table class="pos-bill-table">
+                    <thead>
+                        <tr>
+                            <th class="col-no">S.NO</th>
+                            <th class="col-desc">Description</th>
+                            <th class="col-mrp">MRP</th>
+                            <th class="col-qty">Qty</th>
+                            <th class="col-price">Price</th>
+                            <th class="col-amt">Amount</th>
+                            <th class="col-disc">Disc</th>
+                            <th class="col-net">Net Amount</th>
+                            <th class="col-x"></th>
+                        </tr>
+                    </thead>
+                    <tbody>${rowsHtml}</tbody>
+                </table>`;
+        }
+
         function renderCart() {
             if (cart.length === 0) {
-                cartItemsWrap.innerHTML = `
-                    <div class="text-center text-muted py-5" id="emptyCartState">
-                        <i class="bi bi-cart-x fs-1 opacity-25 d-block mb-2"></i>
-                        Scan barcode or click a product card to add items to cart.
-                    </div>`;
+                cartItemsWrap.innerHTML = billTable(`
+                    <tr>
+                        <td colspan="9" class="pos-empty-cell">
+                            <i class="bi bi-cart-x"></i>
+                            Cart is empty &mdash; scan a barcode or tap a product below to add items.
+                        </td>
+                    </tr>`);
                 subtotalVal.textContent = '₹0.00';
                 animateTotal(0);
                 discountPercentHidden.value = getDiscountPercent();
                 syncDiscountUI(getDiscountPercent(), 0, 0, 0);
                 checkoutBtn.disabled = true;
                 cartJsonInput.value = '';
+                updateSideTotals(0, getDiscountPercent());
+                if (posEcho) {
+                    posEcho.innerHTML = '<span class="echo-empty"><i class="bi bi-upc-scan me-1"></i>Ready &mdash; scan a barcode or tap a product to start billing</span>';
+                }
                 return;
             }
 
@@ -1247,6 +1751,9 @@
                 const lineTotal = item.price * item.qty;
                 total += lineTotal;
 
+                const mrp = (item.mrp && item.mrp > 0) ? item.mrp : (item.base_price || item.price);
+                const lineMrp = mrp * item.qty;
+
                 let flag = '';
                 if (item.dupatta === 'with') {
                     flag = '<span class="ci-flag with">With Dupatta</span>';
@@ -1255,28 +1762,46 @@
                 }
 
                 html += `
-                    <div class="cart-item-row">
-                        <div class="flex-grow-1 min-w-0">
+                    <tr data-row="${index}">
+                        <td class="col-no">${index + 1}</td>
+                        <td class="col-desc">
                             <div class="ci-name">${item.name}</div>
-                            <div class="text-muted" style="font-size:.75rem;">₹${item.price.toFixed(2)} / unit</div>
                             ${flag}
-                        </div>
-                        <div class="ci-qty-ctrl">
-                            <button type="button" class="ci-qty-btn" onclick="updateQty(${index}, -1)">-</button>
-                            <input type="text" class="ci-qty-val" value="${item.qty}" readonly>
-                            <button type="button" class="ci-qty-btn" onclick="updateQty(${index}, 1)">+</button>
-                        </div>
-                        <div class="fw-bold ms-2" style="min-width:60px; text-align:right; font-size:.88rem;">
-                            ₹${lineTotal.toFixed(2)}
-                        </div>
-                        <button type="button" class="btn text-danger p-1 ms-1" onclick="removeItem(${index})"><i class="bi bi-x-circle"></i></button>
-                    </div>`;
+                        </td>
+                        <td class="col-mrp">₹${mrp.toFixed(2)}</td>
+                        <td class="col-qty">
+                            <div class="ci-qty-ctrl">
+                                <button type="button" class="ci-qty-btn" onclick="updateQty(${index}, -1)">-</button>
+                                <input type="text" class="ci-qty-val" value="${item.qty}" readonly>
+                                <button type="button" class="ci-qty-btn" onclick="updateQty(${index}, 1)">+</button>
+                            </div>
+                        </td>
+                        <td class="col-price">₹${item.price.toFixed(2)}</td>
+                        <td class="col-amt" data-amt="${lineMrp}">₹${lineMrp.toFixed(2)}</td>
+                        <td class="col-disc" data-disc>₹0.00</td>
+                        <td class="col-net" data-base="${lineTotal}">₹${lineTotal.toFixed(2)}</td>
+                        <td class="col-x">
+                            <button type="button" class="row-remove" onclick="removeItem(${index})" title="Remove item"><i class="bi bi-x-circle-fill"></i></button>
+                        </td>
+                    </tr>`;
             });
 
-            cartItemsWrap.innerHTML = html;
+            cartItemsWrap.innerHTML = billTable(html);
             refreshTotals();
             checkoutBtn.disabled = false;
             cartJsonInput.value = JSON.stringify(cart);
+        }
+
+        // Show the last-added line in the dark top bar (classic POS echo line).
+        function updateEcho(item) {
+            if (!posEcho || !item) return;
+            const mrp = (item.mrp && item.mrp > 0) ? item.mrp : (item.base_price || item.price);
+            const lineTotal = item.price * item.qty;
+            posEcho.innerHTML =
+                `<span class="echo-name">${item.name}</span>` +
+                `<span class="echo-mrp">MRP: ₹${mrp.toFixed(2)}</span>` +
+                `<span>${item.qty} X ${item.price.toFixed(2)} =</span>` +
+                `<span class="echo-eq">₹${lineTotal.toFixed(2)}</span>`;
         }
 
         function addToCart(product, qty, dupatta) {
@@ -1302,6 +1827,7 @@
                     id: product.id,
                     name: product.name,
                     base_price: product.price,
+                    mrp: (product.mrp && product.mrp > 0) ? product.mrp : product.price,
                     price: price,
                     discount: product.discount === undefined ? DUPATTA_DISCOUNT : product.discount,
                     stock: product.stock,
@@ -1310,6 +1836,7 @@
                 });
             }
             renderCart();
+            updateEcho(cart.find(i => i.key === key));
         }
 
         // --- Dupatta choice popup -------------------------------------------------
@@ -1470,6 +1997,7 @@
                 id: parseInt(card.dataset.id),
                 name: card.dataset.name,
                 price: parseFloat(card.dataset.price),
+                mrp: parseFloat(card.dataset.mrp || '0'),
                 stock: parseInt(card.dataset.stock),
                 hasDupatta: card.dataset.dupatta === '1',
                 discount: parseFloat(card.dataset.dupattaDiscount || '350'),
@@ -1559,6 +2087,77 @@
                 filterProducts();
             });
         });
+
+        // --- Row selection highlight (classic POS blue selected row) ---
+        cartItemsWrap.addEventListener('click', (e) => {
+            const tr = e.target.closest('tr[data-row]');
+            if (!tr) return;
+            cartItemsWrap.querySelectorAll('tr.selected').forEach(r => r.classList.remove('selected'));
+            tr.classList.add('selected');
+        });
+
+        // --- Function keys: on-screen blue strip + real F-key shortcuts ---
+        function posAction(action) {
+            switch (action) {
+                case 'search':
+                    catalogSearch.focus();
+                    catalogSearch.select();
+                    break;
+                case 'scan':
+                    barcodeInput.focus();
+                    barcodeInput.select();
+                    break;
+                case 'cancel':
+                    if (cart.length === 0) return;
+                    if (confirm('Clear the current bill?')) {
+                        cart = [];
+                        renderCart();
+                    }
+                    break;
+                case 'tender':
+                    if (cart.length === 0) { barcodeInput.focus(); return; }
+                    checkoutForm.requestSubmit();
+                    break;
+                case 'discount':
+                    discountPercentInput.focus();
+                    discountPercentInput.select();
+                    break;
+                case 'customer':
+                    checkoutForm.customer_name.focus();
+                    break;
+                case 'clearsearch':
+                    catalogSearch.value = '';
+                    barcodeInput.value = '';
+                    filterProducts();
+                    catalogSearch.focus();
+                    break;
+            }
+        }
+
+        document.querySelectorAll('.pos-fkey').forEach(btn => {
+            btn.addEventListener('click', () => posAction(btn.dataset.fk));
+        });
+
+        const posFkMap = { F2: 'search', F3: 'scan', F4: 'cancel', F5: 'tender', F6: 'discount', F7: 'customer', F10: 'clearsearch' };
+        document.addEventListener('keydown', (e) => {
+            if (posFkMap[e.key]) {
+                e.preventDefault();
+                posAction(posFkMap[e.key]);
+            }
+        });
+
+        // --- Live clock in the dark top bar ---
+        const posClock = document.getElementById('posClock');
+        function tickClock() {
+            if (!posClock) return;
+            const now = new Date();
+            posClock.textContent =
+                now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) +
+                ' · ' +
+                now.toLocaleTimeString('en-GB');
+        }
+        tickClock();
+        setInterval(tickClock, 1000);
 
         // Auto show receipt modal if order completed
     </script>
