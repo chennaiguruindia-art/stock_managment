@@ -5,69 +5,85 @@
 
 @section('content')
     <style>
-        .stock-stat {
-            --tone: var(--accent, #1554d1);
-            --tone-soft: var(--accent-soft, #e7eefe);
-            background: #fff;
+        /* ===== Compact single-row KPI strip ===== */
+        .kpi-strip {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 1px;
+            background: var(--border, #dfe4ee);
             border: 1px solid var(--border, #dfe4ee);
-            border-radius: var(--radius, 10px);
-            padding: 1rem 1.1rem;
-            color: var(--text, #0e1726);
-            position: relative;
+            border-radius: var(--radius, 12px);
             overflow: hidden;
             box-shadow: 0 1px 2px rgba(16, 24, 40, .05);
         }
-        .stock-stat::before {
-            content: "";
-            position: absolute;
-            left: 0; top: 0; bottom: 0;
-            width: 3px;
-            background: var(--tone);
+        .kpi {
+            --tone: var(--accent, #1554d1);
+            --tone-soft: var(--accent-soft, #e7eefe);
+            background: #fff;
+            padding: .8rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: .7rem;
+            min-width: 0;
+            transition: background .15s ease;
         }
-        .stock-stat .icon {
-            position: absolute;
-            right: 14px;
-            top: 14px;
+        .kpi:hover { background: #fbfcff; }
+        .kpi-icon {
             width: 34px;
             height: 34px;
+            flex: 0 0 34px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
-            border-radius: 8px;
+            border-radius: 9px;
             background: var(--tone-soft);
             color: var(--tone);
-            opacity: 1;
-            line-height: 1;
+            font-size: .95rem;
         }
-        .stock-stat .label {
-            font-size: .66rem;
+        .kpi-body { min-width: 0; }
+        .kpi-label {
+            font-size: .6rem;
             text-transform: uppercase;
-            letter-spacing: .1em;
+            letter-spacing: .09em;
             font-weight: 700;
             color: var(--muted, #66748b);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .stock-stat .value {
-            font-size: 1.75rem;
+        .kpi-value {
+            font-size: 1.4rem;
             font-weight: 800;
-            line-height: 1.2;
+            line-height: 1.25;
             color: var(--text, #0e1726);
-            margin-top: .25rem;
             font-variant-numeric: tabular-nums;
+            white-space: nowrap;
         }
-        .stock-stat .sub {
-            font-size: .68rem;
+        .kpi-value .kpi-note {
+            display: block;
+            font-size: .63rem;
+            font-weight: 600;
             color: var(--muted, #66748b);
-            margin-top: .3rem;
-            line-height: 1.35;
+            margin-top: .05rem;
         }
-        .stock-stat .sub b { color: var(--text, #0e1726); font-weight: 700; }
-        .st-total  { --tone: #1554d1; --tone-soft: #e7eefe; }
-        .st-types  { --tone: #7c3aed; --tone-soft: #f1eafd; }
-        .st-variants{ --tone: #0891b2; --tone-soft: #e2f6fb; }
-        .st-healthy{ --tone: #0f9d58; --tone-soft: #e4f7ec; }
-        .st-low    { --tone: #d97706; --tone-soft: #fdf1e2; }
-        .st-out    { --tone: #dc2626; --tone-soft: #fdeaea; }
+        .kpi-types    { --tone: #7c3aed; --tone-soft: #f1eafd; }
+        .kpi-variants { --tone: #0891b2; --tone-soft: #e2f6fb; }
+        .kpi-total    { --tone: #1554d1; --tone-soft: #e7eefe; }
+        .kpi-healthy  { --tone: #0f9d58; --tone-soft: #e4f7ec; }
+        .kpi-low      { --tone: #d97706; --tone-soft: #fdf1e2; }
+        .kpi-out      { --tone: #dc2626; --tone-soft: #fdeaea; }
+        @media (max-width: 1199.98px) {
+            .kpi { padding: .7rem .75rem; gap: .55rem; }
+            .kpi-icon { width: 28px; height: 28px; flex-basis: 28px; font-size: .82rem; border-radius: 7px; }
+            .kpi-label { font-size: .56rem; }
+            .kpi-value { font-size: 1.2rem; }
+        }
+        @media (max-width: 767.98px) {
+            .kpi-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        @media (max-width: 575.98px) {
+            .kpi-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
 
         .stock-stepper {
             display: inline-flex;
@@ -204,75 +220,172 @@
             font-size: .78rem;
             color: var(--muted, #66748b);
         }
+
+        /* ===== Panel head & toolbar ===== */
+        .panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: .75rem;
+            padding-bottom: .85rem;
+            margin-bottom: .9rem;
+            border-bottom: 1px solid var(--border, #dfe4ee);
+        }
+        .panel-head .panel-title { margin: 0; font-size: 1rem; }
+        .count-pill {
+            display: inline-block;
+            margin-left: .5rem;
+            padding: .12rem .55rem;
+            border-radius: 999px;
+            background: var(--accent-soft, #e7eefe);
+            color: var(--accent-strong, #1043a8);
+            font-size: .7rem;
+            font-weight: 700;
+            vertical-align: middle;
+            font-variant-numeric: tabular-nums;
+        }
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: .75rem;
+            margin-bottom: .9rem;
+        }
+        .toolbar .search-box-input { max-width: 300px; }
+
+        /* ===== Stock table ===== */
+        #stockTable thead th {
+            background: transparent;
+            font-size: .64rem;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: var(--muted, #66748b);
+            font-weight: 700;
+            border-bottom: 1px solid var(--border, #dfe4ee);
+            white-space: nowrap;
+            padding-top: .7rem;
+            padding-bottom: .7rem;
+        }
+        #stockTable tbody td {
+            font-size: .87rem;
+            padding: .65rem .6rem;
+            border-color: var(--border, #dfe4ee);
+            vertical-align: middle;
+        }
+        #stockTable tbody tr:nth-child(even) td { background: #fbfcfe; }
+        #stockTable tbody tr:hover td { background: #f2f7fd; }
+        .p-name { font-weight: 700; font-size: .89rem; color: var(--text, #0e1726); }
+        .p-meta { font-size: .72rem; color: var(--muted, #66748b); }
+        .size-tag {
+            display: inline-block;
+            margin-left: .4rem;
+            padding: .05rem .4rem;
+            border-radius: 5px;
+            background: var(--surface-3, #eaeff7);
+            border: 1px solid var(--border, #dfe4ee);
+            color: var(--muted, #66748b);
+            font-size: .62rem;
+            font-weight: 700;
+            letter-spacing: .04em;
+            vertical-align: middle;
+        }
+        .stock-num {
+            font-weight: 800;
+            font-size: 1rem;
+            font-variant-numeric: tabular-nums;
+        }
+        .stock-num small {
+            font-weight: 600;
+            font-size: .68rem;
+            color: var(--muted, #66748b);
+            margin-left: .15rem;
+        }
+        .st-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: .35rem;
+            padding: .22rem .6rem;
+            border-radius: 999px;
+            font-size: .7rem;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .st-badge::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+        .st-ok   { background: #e4f7ec; color: #0f7c45; }
+        .st-warn { background: #fdf1e2; color: #b45309; }
+        .st-bad  { background: #fdeaea; color: #c81e1e; }
     </style>
 
     @include('layouts.alerts')
 
-    <div class="row g-4 mb-4">
-        <div class="col-lg-4 col-sm-6">
-            <div class="stock-stat st-types">
-                <i class="bi bi-grid-1x2-fill icon"></i>
-                <div class="label">Product types</div>
-                <div class="value">{{ $productTypes }}</div>
-                <div class="sub">Distinct product names in catalog, across <b>{{ $brands }} {{ Str::plural('brand', $brands) }}</b></div>
+    <div class="kpi-strip mb-4">
+        <div class="kpi kpi-types">
+            <span class="kpi-icon"><i class="bi bi-grid-1x2-fill"></i></span>
+            <div class="kpi-body">
+                <div class="kpi-label">Product types</div>
+                <div class="kpi-value">{{ $productTypes }}<span class="kpi-note">{{ $brands }} {{ Str::plural('brand', $brands) }}</span></div>
             </div>
         </div>
-        <div class="col-lg-4 col-sm-6">
-            <div class="stock-stat st-variants">
-                <i class="bi bi-collection-fill icon"></i>
-                <div class="label">Size variants (SKUs)</div>
-                <div class="value">{{ $totalProducts }}</div>
-                <div class="sub">Size rows (XS/S/M/L&hellip;) across all products</div>
+        <div class="kpi kpi-variants">
+            <span class="kpi-icon"><i class="bi bi-collection-fill"></i></span>
+            <div class="kpi-body">
+                <div class="kpi-label">Size variants</div>
+                <div class="kpi-value">{{ $totalProducts }}<span class="kpi-note">size rows</span></div>
             </div>
         </div>
-        <div class="col-lg-4 col-sm-6">
-            <div class="stock-stat st-total">
-                <i class="bi bi-box-seam icon"></i>
-                <div class="label">Total stock units</div>
-                <div class="value">{{ $totalStock }}</div>
-                <div class="sub">Total pieces available in inventory</div>
+        <div class="kpi kpi-total">
+            <span class="kpi-icon"><i class="bi bi-box-seam"></i></span>
+            <div class="kpi-body">
+                <div class="kpi-label">Stock units</div>
+                <div class="kpi-value">{{ $totalStock }}<span class="kpi-note">pieces</span></div>
             </div>
         </div>
-        <div class="col-lg-4 col-sm-6">
-            <div class="stock-stat st-healthy">
-                <i class="bi bi-check-circle-fill icon"></i>
-                <div class="label">Healthy stock</div>
-                <div class="value">{{ $healthyStock }}</div>
-                <div class="sub">Variant rows with <b>5+</b> pieces</div>
+        <div class="kpi kpi-healthy">
+            <span class="kpi-icon"><i class="bi bi-check-circle-fill"></i></span>
+            <div class="kpi-body">
+                <div class="kpi-label">Healthy</div>
+                <div class="kpi-value">{{ $healthyStock }}<span class="kpi-note">5+ pcs</span></div>
             </div>
         </div>
-        <div class="col-lg-4 col-sm-6">
-            <div class="stock-stat st-low">
-                <i class="bi bi-exclamation-triangle icon"></i>
-                <div class="label">Low stock</div>
-                <div class="value">{{ $lowStock }}</div>
-                <div class="sub">Variant rows with only <b>1&ndash;4</b> pieces</div>
+        <div class="kpi kpi-low">
+            <span class="kpi-icon"><i class="bi bi-exclamation-triangle"></i></span>
+            <div class="kpi-body">
+                <div class="kpi-label">Low stock</div>
+                <div class="kpi-value">{{ $lowStock }}<span class="kpi-note">1&ndash;4 pcs</span></div>
             </div>
         </div>
-        <div class="col-lg-4 col-sm-6">
-            <div class="stock-stat st-out">
-                <i class="bi bi-bag-x icon"></i>
-                <div class="label">Out of stock</div>
-                <div class="value">{{ $outOfStock }}</div>
-                <div class="sub">Variant rows with <b>0</b> pieces</div>
+        <div class="kpi kpi-out">
+            <span class="kpi-icon"><i class="bi bi-bag-x"></i></span>
+            <div class="kpi-body">
+                <div class="kpi-label">Out of stock</div>
+                <div class="kpi-value">{{ $outOfStock }}<span class="kpi-note">0 pcs</span></div>
             </div>
         </div>
     </div>
 
     <div class="panel">
-        <div class="panel-title"><i class="bi bi-sliders"></i> Inventory control</div>
+        <div class="panel-head">
+            <div class="panel-title"><i class="bi bi-sliders"></i> Inventory control <span class="count-pill" id="resultCount">{{ $products->count() }}</span></div>
+            <div class="d-flex gap-2">
+                <a href="{{ route('stock_export_excel') }}" class="btn btn-sm btn-outline-accent"><i class="bi bi-file-earmark-excel me-1"></i>Excel</a>
+                <a href="{{ route('stock_export_pdf') }}" class="btn btn-sm btn-outline-accent"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</a>
+            </div>
+        </div>
 
-        <div class="d-flex flex-wrap gap-3 align-items-center mb-3">
-            <input type="text" id="searchInput" class="search-box-input" style="max-width:260px;" placeholder="Search product, brand, SKU...">
+        <div class="toolbar">
+            <input type="text" id="searchInput" class="search-box-input" placeholder="Search product, brand, SKU...">
             <div class="d-flex gap-2 flex-wrap" id="filterChips">
                 <button class="filter-chip active" data-filter="all">All</button>
                 <button class="filter-chip" data-filter="ok">Healthy</button>
                 <button class="filter-chip" data-filter="low">Low</button>
                 <button class="filter-chip" data-filter="out">Out of stock</button>
-            </div>
-            <div class="ms-auto d-flex gap-2">
-                <a href="{{ route('stock_export_excel') }}" class="btn btn-sm btn-outline-accent"><i class="bi bi-file-earmark-excel me-1"></i>Excel</a>
-                <a href="{{ route('stock_export_pdf') }}" class="btn btn-sm btn-outline-accent"><i class="bi bi-file-earmark-pdf me-1"></i>PDF</a>
             </div>
         </div>
 
@@ -295,15 +408,15 @@
                     @forelse ($products as $product)
                         @php
                             $status = $product->stock <= 0 ? 'out' : ($product->stock < 5 ? 'low' : 'ok');
-                            $badge = $status === 'out' ? 'bg-danger' : ($status === 'low' ? 'bg-warning text-dark' : 'bg-success');
+                            $badge = $status === 'out' ? 'st-bad' : ($status === 'low' ? 'st-warn' : 'st-ok');
                             $label = $status === 'out' ? 'Out of stock' : ($status === 'low' ? 'Low' : 'Healthy');
                         @endphp
                         <tr data-status="{{ $status }}"
                             data-search="{{ strtolower($product->product_id . ' ' . $product->product_name . ' ' . $product->brand . ' ' . $product->sku . ' ' . $product->barcode) }}">
                             <td><span class="chip-sku">{{ $product->product_id ?: '-' }}</span></td>
                             <td>
-                                <div class="fw-semibold">{{ $product->product_name }}</div>
-                                <div class="text-muted" style="font-size:.78rem;">{{ $product->brand }} &middot; {{ $product->product_type }}</div>
+                                <div class="p-name">{{ $product->product_name }}@if ($product->size)<span class="size-tag">{{ $product->size }}</span>@endif</div>
+                                <div class="p-meta">{{ $product->brand }} &middot; {{ $product->product_type }}</div>
                             </td>
                             <td><span class="chip-sku">{{ $product->sku }}</span></td>
                             <td><span class="chip-barcode">{{ $product->barcode }}</span></td>
@@ -317,8 +430,8 @@
                                     <span class="text-muted">&mdash;</span>
                                 @endif
                             </td>
-                            <td class="fw-bold">{{ $product->stock }}</td>
-                            <td><span class="badge {{ $badge }} rounded-pill">{{ $label }}</span></td>
+                            <td><span class="stock-num">{{ $product->stock }}<small>pcs</small></span></td>
+                            <td><span class="st-badge {{ $badge }}">{{ $label }}</span></td>
                             <td>
                                 <form method="POST" action="{{ route('stock_update') }}" class="d-inline-flex align-items-center gap-2">
                                     @csrf
@@ -492,16 +605,22 @@
         const searchInput = document.getElementById('searchInput');
         const chips = document.querySelectorAll('.filter-chip');
         const rows = document.querySelectorAll('#stockTable tbody tr[data-status]');
+        const resultCount = document.getElementById('resultCount');
 
         function applyFilters() {
             const q = searchInput.value.trim().toLowerCase();
             const active = document.querySelector('.filter-chip.active').dataset.filter;
+            let visible = 0;
             rows.forEach(row => {
                 const statusOk = active === 'all' || row.dataset.status === active;
                 const searchOk = q === '' || row.dataset.search.includes(q);
-                row.style.display = statusOk && searchOk ? '' : 'none';
+                const show = statusOk && searchOk;
+                row.style.display = show ? '' : 'none';
+                if (show) visible++;
             });
+            if (resultCount) resultCount.textContent = visible + ' / ' + rows.length;
         }
+        applyFilters();
 
         searchInput.addEventListener('input', applyFilters);
         chips.forEach(chip => {
