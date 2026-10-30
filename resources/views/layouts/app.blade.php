@@ -293,6 +293,14 @@
             height: 100%;
         }
 
+        /* Standalone page panels should hug their content instead of
+           stretching to fill the viewport (panels nested in columns or
+           grids keep height:100% so they stay equal-height). */
+        .content > .panel,
+        .content > .card-panel {
+            height: auto;
+        }
+
         .section-title {
             font-size: .95rem;
             font-weight: 700;
