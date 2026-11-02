@@ -1907,6 +1907,7 @@
             cart.forEach((item, i) => {
                 const lineTotal = item.price * item.qty;
                 total += lineTotal;
+                const mrp = (item.mrp && item.mrp > 0) ? item.mrp : (item.base_price || item.price);
 
                 let dup = '';
                 if (item.dupatta === 'with') {
@@ -1914,13 +1915,19 @@
                 } else if (item.dupatta === 'without') {
                     dup = '<div class="ci-flag without">Without Dupatta</div>';
                 }
+                // When the selling price differs from MRP, show the effective
+                // unit selling price so MRP vs Amount still adds up clearly.
+                let unitNote = '';
+                if (Math.abs(mrp - item.price) > 0.01) {
+                    unitNote = `<div class="text-muted" style="font-size:.74rem;">Selling @ &#8377;${item.price.toFixed(2)} / unit</div>`;
+                }
 
                 html += `
                     <tr>
                         <td class="text-muted">${i + 1}</td>
-                        <td><div class="cf-name">${item.name}</div>${dup}</td>
+                        <td><div class="cf-name">${item.name}</div>${dup}${unitNote}</td>
                         <td class="text-center">${item.qty}</td>
-                        <td class="text-end">₹${item.price.toFixed(2)}</td>
+                        <td class="text-end">₹${mrp.toFixed(2)}</td>
                         <td class="text-end fw-bold">₹${lineTotal.toFixed(2)}</td>
                     </tr>`;
             });
