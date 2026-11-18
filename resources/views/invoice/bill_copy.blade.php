@@ -536,10 +536,26 @@
         }
     </style>
 
-    <div class="d-flex justify-content-end align-items-center mb-3 no-print" style="max-width:900px;margin:0 auto 1rem;">
-        <button type="button" class="btn btn-primary btn-sm fw-bold px-3" onclick="window.print()" style="background:#1554d1;border-color:#1554d1;border-radius:8px;">
-            <i class="bi bi-printer me-1"></i> Print Invoice
-        </button>
+    <div class="d-flex justify-content-between align-items-center mb-3 no-print" style="max-width:900px;margin:0 auto 1rem;">
+        <a href="{{ route('invoice') }}" class="btn btn-outline-secondary btn-sm fw-semibold px-3" style="border-radius:8px;">
+            <i class="bi bi-arrow-left me-1"></i> Back to Invoices
+        </a>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-warning btn-sm fw-bold px-3 text-dark edit-discount-btn"
+                data-order-id="{{ $order->order_id }}"
+                data-customer="{{ $order->customer_name ?: 'Walk-in' }}"
+                data-mobile="{{ $order->customer_mobile ?: '—' }}"
+                data-subtotal="{{ (float) $order->items->sum('total') }}"
+                data-discount-percent="{{ (float) ($order->discount_percent ?? 0) }}"
+                data-discount-amount="{{ (float) ($order->discount_amount ?? 0) }}"
+                data-total="{{ (float) $order->total }}"
+                style="border-radius:8px;">
+                <i class="bi bi-percent me-1"></i> Edit Discount
+            </button>
+            <button type="button" class="btn btn-primary btn-sm fw-bold px-3" onclick="window.print()" style="background:#1554d1;border-color:#1554d1;border-radius:8px;">
+                <i class="bi bi-printer me-1"></i> Print Invoice
+            </button>
+        </div>
     </div>
 
     @php
@@ -810,4 +826,6 @@
             <div class="t-sub">FOR CHOOSING ZYRA</div>
         </div>
     </div>
+
+    @include('invoice._edit_discount_modal')
 @endsection

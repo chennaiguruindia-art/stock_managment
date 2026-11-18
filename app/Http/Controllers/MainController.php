@@ -920,4 +920,53 @@ class MainController extends Controller
         return redirect()->route('return_product', $backTo)
             ->with('success', "Returned {$quantity} unit(s) of {$item->product_name} and stock updated.");
     }
+
+    /**
+     * Update order discount percentage/amount after billing without affecting stock.
+     */
+    public function updateOrderDiscount(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required',
+            'discount_percent' => 'nullable|numeric|min:0|max:100',
+            'discount_amount' => 'nullable|numeric|min:0',
+        ]);
+
+        $orderId = $request->input('order_id');
+        $order = Order::with('items')->where('order_id', $orderId)->orWhere('id', $orderId)->first();
+
+        if (! $order) {
+            return redirect()->back()->with('error', 'Order not found.');
+        }
+
+        // Subtotal of line items (before order-level discount)
+        $subtotal = (float) $order->items->sum('total');
+        if ($subtotal <= 0) {
+            $subtotal = (float) $order->total + (float) ($order->discount_amount ?? 0);
+        }
+
+        $discountPercent = $request->input('discount_percent');
+        $discountAmount = $request->input('discount_amount');
+
+        if ($discountPercent !== null && $discountPercent !== '') {
+            $discountPercent = max(0, min(100, (float) $discountPercent));
+            $discountAmount = round($subtotal * ($discountPercent / 100), 2);
+        } elseif ($discountAmount !== null && $discountAmount !== '') {
+            $discountAmount = max(0, min($subtotal, (float) $discountAmount));
+            $discountPercent = $subtotal > 0 ? round(($discountAmount / $subtotal) * 100, 2) : 0;
+        } else {
+            $discountPercent = 0.0;
+            $discountAmount = 0.0;
+        }
+
+        $newPayable = round(max(0, $subtotal - $discountAmount), 2);
+
+        $order->update([
+            'discount_percent' => $discountPercent,
+            'discount_amount'  => $discountAmount,
+            'total'            => $newPayable,
+        ]);
+
+        return redirect()->back()->with('success', "Bill {$order->order_id} updated: {$discountPercent}% discount (₹" . number_format($discountAmount, 2) . ") applied. New Total: ₹" . number_format($newPayable, 2));
+    }
 }

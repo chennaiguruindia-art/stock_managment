@@ -392,6 +392,7 @@
                         <th>Items</th>
                         <th>Total & GST (5%)</th>
                         <th>Status</th>
+                        <th class="text-end">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -431,6 +432,11 @@
                                 @else
                                     ₹{{ number_format($order->total, 2) }}
                                 @endif
+                                @if ((float)($order->discount_percent ?? 0) > 0)
+                                    <div class="text-success" style="font-size:.72rem;">
+                                        -{{ rtrim(rtrim(number_format((float)$order->discount_percent, 2), '0'), '.') }}% off
+                                    </div>
+                                @endif
                                 @if ($netAmount > 0)
                                     <div class="text-muted" style="font-size: .68rem; font-weight: normal;">
                                         Taxable: ₹{{ number_format($orderTaxable, 2) }} &middot; GST: ₹{{ number_format($orderGst, 2) }}
@@ -446,9 +452,28 @@
                                     <span class="badge bg-success rounded-pill">Paid</span>
                                 @endif
                             </td>
+                            <td class="text-end">
+                                <div class="d-inline-flex gap-1">
+                                    <a href="{{ route('view_order_invoice', $order->order_id) }}" class="btn btn-sm btn-outline-primary" style="font-size:.74rem;" title="View Invoice">
+                                        <i class="bi bi-receipt"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-warning text-dark edit-discount-btn"
+                                        data-order-id="{{ $order->order_id }}"
+                                        data-customer="{{ $order->customer_name ?: 'Walk-in' }}"
+                                        data-mobile="{{ $order->customer_mobile ?: '—' }}"
+                                        data-subtotal="{{ (float) $order->items->sum('total') }}"
+                                        data-discount-percent="{{ (float) ($order->discount_percent ?? 0) }}"
+                                        data-discount-amount="{{ (float) ($order->discount_amount ?? 0) }}"
+                                        data-total="{{ (float) $order->total }}"
+                                        style="font-size:.74rem; font-weight:600;"
+                                        title="Edit discount for this bill">
+                                        <i class="bi bi-percent"></i> Discount
+                                    </button>
+                                </div>
+                            </td>
                         </tr>
                         <tr class="d-none" id="items-{{ $order->id }}">
-                            <td colspan="7" class="bg-light" style="border-radius:0 0 16px 16px;">
+                            <td colspan="8" class="bg-light" style="border-radius:0 0 16px 16px;">
                                 <div class="p-3">
                                     @foreach ($order->items as $item)
                                         @php
@@ -497,7 +522,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center text-muted py-4">
+                            <td colspan="8" class="text-center text-muted py-4">
                                 No sales found for this period.
                             </td>
                         </tr>
@@ -506,6 +531,8 @@
             </table>
         </div>
     </div>
+
+    @include('invoice._edit_discount_modal')
 @endsection
 
 @push('scripts')

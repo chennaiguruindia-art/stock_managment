@@ -31,6 +31,7 @@ Route::get('/invoice-search', [indexController::class, 'customer_invoices'])->na
 Route::get('/invoice/{product}', [indexController::class, 'invoice_detail'])->name('invoice_detail');
 Route::get('/invoice/order/{orderId}', [indexController::class, 'view_order_invoice'])->name('view_order_invoice');
 Route::post('/invoice/store', [MainController::class, 'invoice_store'])->name('invoice_store');
+Route::post('/invoice/update-discount', [MainController::class, 'updateOrderDiscount'])->name('invoice_update_discount');
 Route::post('/pos/add-item', [MainController::class, 'posAddItem'])->name('pos_add_item');
 Route::post('/pos/checkout', [MainController::class, 'posCheckout'])->name('pos_checkout');
 Route::get('/sales-history', [indexController::class, 'sales_history'])->name('sales_history');
