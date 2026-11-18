@@ -34,6 +34,7 @@ Route::post('/invoice/store', [MainController::class, 'invoice_store'])->name('i
 Route::post('/pos/add-item', [MainController::class, 'posAddItem'])->name('pos_add_item');
 Route::post('/pos/checkout', [MainController::class, 'posCheckout'])->name('pos_checkout');
 Route::get('/sales-history', [indexController::class, 'sales_history'])->name('sales_history');
+Route::get('/sales-history/export-gst', [indexController::class, 'export_gst'])->name('sales_history_export_gst');
 Route::get('/report', [indexController::class, 'report'])->name('report');
 Route::get('/logout', [indexController::class, 'logout'])->name('logout');
 

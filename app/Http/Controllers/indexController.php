@@ -345,11 +345,83 @@ class indexController extends Controller
         return view('invoice.bill_copy', compact('order'));
     }
 
-    public function sales_history()
+    public function sales_history(Request $request)
     {
-        $orders = Order::with('items')->orderByDesc('id')->get();
+        $allOrders = Order::with('items')->orderByDesc('id')->get();
+
+        $gstRate = (float) $request->query('gst_rate', 5);
+        if ($gstRate <= 0) {
+            $gstRate = 5;
+        }
+
+        // Available months grouped
+        $monthlySummaries = [];
+        $availableMonths = [];
+
+        foreach ($allOrders as $order) {
+            if (! $order->created_at) {
+                continue;
+            }
+            $mKey = $order->created_at->format('Y-m');
+            $mLabel = $order->created_at->format('F Y');
+
+            if (! isset($availableMonths[$mKey])) {
+                $availableMonths[$mKey] = $mLabel;
+            }
+
+            if (! isset($monthlySummaries[$mKey])) {
+                $monthlySummaries[$mKey] = [
+                    'month_key'      => $mKey,
+                    'month_label'    => $mLabel,
+                    'orders_count'   => 0,
+                    'gross_total'    => 0.0,
+                    'returned_total' => 0.0,
+                    'net_total'      => 0.0,
+                    'taxable_value'  => 0.0,
+                    'cgst'           => 0.0,
+                    'sgst'           => 0.0,
+                    'total_gst'      => 0.0,
+                    'items_sold'     => 0,
+                ];
+            }
+
+            $monthlySummaries[$mKey]['orders_count']++;
+            $monthlySummaries[$mKey]['gross_total'] += (float) $order->total;
+            $monthlySummaries[$mKey]['returned_total'] += (float) $order->returnedTotal();
+            $monthlySummaries[$mKey]['net_total'] += (float) $order->netTotal();
+            $monthlySummaries[$mKey]['items_sold'] += (int) $order->netQty();
+        }
+
+        // Calculate GST breakup for each month
+        foreach ($monthlySummaries as $mKey => &$summary) {
+            $net = $summary['net_total'];
+            $taxable = $net > 0 ? round($net / (1 + ($gstRate / 100)), 2) : 0;
+            $gst = round($net - $taxable, 2);
+            $cgst = round($gst / 2, 2);
+            $sgst = round($gst - $cgst, 2);
+
+            $summary['taxable_value'] = $taxable;
+            $summary['cgst'] = $cgst;
+            $summary['sgst'] = $sgst;
+            $summary['total_gst'] = $gst;
+        }
+        unset($summary);
+
+        // Sort descending by month key
+        krsort($monthlySummaries);
+        krsort($availableMonths);
+
+        // Selected month filter
+        $selectedMonth = $request->query('month', 'all');
+        if ($selectedMonth && $selectedMonth !== 'all' && isset($monthlySummaries[$selectedMonth])) {
+            $orders = $allOrders->filter(fn ($o) => $o->created_at && $o->created_at->format('Y-m') === $selectedMonth);
+        } else {
+            $selectedMonth = 'all';
+            $orders = $allOrders;
+        }
 
         $totalOrders   = $orders->count();
+        $totalGross    = (float) $orders->sum('total');
         $totalReturned = (float) $orders->sum(fn (Order $o) => $o->returnedTotal());
         $totalRevenue  = (float) $orders->sum(fn (Order $o) => $o->netTotal());
         $totalItems    = (int) $orders->sum(fn (Order $o) => $o->netQty());
@@ -357,10 +429,82 @@ class indexController extends Controller
         $ordersWithReturns = (int) $orders->filter(fn (Order $o) => $o->returnedQty() > 0)->count();
         $avgOrder = $totalOrders > 0 ? round($totalRevenue / $totalOrders, 2) : 0;
 
+        $totalTaxable = $totalRevenue > 0 ? round($totalRevenue / (1 + ($gstRate / 100)), 2) : 0;
+        $totalGst = round($totalRevenue - $totalTaxable, 2);
+        $totalCgst = round($totalGst / 2, 2);
+        $totalSgst = round($totalGst - $totalCgst, 2);
+
         return view('stock.sales_history', compact(
-            'orders', 'totalOrders', 'totalRevenue', 'totalReturned',
-            'totalItems', 'returnedItems', 'ordersWithReturns', 'avgOrder'
+            'orders', 'totalOrders', 'totalGross', 'totalRevenue', 'totalReturned',
+            'totalItems', 'returnedItems', 'ordersWithReturns', 'avgOrder',
+            'availableMonths', 'monthlySummaries', 'selectedMonth', 'gstRate',
+            'totalTaxable', 'totalGst', 'totalCgst', 'totalSgst'
         ));
+    }
+
+    public function export_gst(Request $request)
+    {
+        $allOrders = Order::with('items')->orderByDesc('id')->get();
+        $gstRate = (float) $request->query('gst_rate', 5);
+        if ($gstRate <= 0) {
+            $gstRate = 5;
+        }
+
+        $selectedMonth = $request->query('month', 'all');
+
+        if ($selectedMonth && $selectedMonth !== 'all') {
+            $orders = $allOrders->filter(fn ($o) => $o->created_at && $o->created_at->format('Y-m') === $selectedMonth);
+            $monthLabel = $orders->isNotEmpty() ? $orders->first()->created_at->format('F Y') : $selectedMonth;
+        } else {
+            $orders = $allOrders;
+            $monthLabel = 'All Months';
+        }
+
+        // Build monthly consolidated summary
+        $monthlySummaries = [];
+        $grouped = $orders->groupBy(fn ($o) => $o->created_at ? $o->created_at->format('Y-m') : 'unknown');
+
+        foreach ($grouped as $monthKey => $mOrders) {
+            if ($monthKey === 'unknown') {
+                continue;
+            }
+            $label = $mOrders->first()->created_at->format('F Y');
+            $mCount = $mOrders->count();
+            $mGross = (float) $mOrders->sum('total');
+            $mReturned = (float) $mOrders->sum(fn (Order $o) => $o->returnedTotal());
+            $mNet = (float) $mOrders->sum(fn (Order $o) => $o->netTotal());
+            $mTaxable = $mNet > 0 ? round($mNet / (1 + ($gstRate / 100)), 2) : 0;
+            $mGst = round($mNet - $mTaxable, 2);
+            $mCgst = round($mGst / 2, 2);
+            $mSgst = round($mGst - $mCgst, 2);
+            $mItems = (int) $mOrders->sum(fn (Order $o) => $o->netQty());
+
+            $monthlySummaries[$monthKey] = [
+                'month_key'      => $monthKey,
+                'month_label'    => $label,
+                'orders_count'   => $mCount,
+                'gross_total'    => $mGross,
+                'returned_total' => $mReturned,
+                'net_total'      => $mNet,
+                'taxable_value'  => $mTaxable,
+                'cgst'           => $mCgst,
+                'sgst'           => $mSgst,
+                'total_gst'      => $mGst,
+                'items_sold'     => $mItems,
+            ];
+        }
+
+        krsort($monthlySummaries);
+
+        $company = config('invoice.company');
+        $filename = 'GST-Sales-Report-' . Str::slug($monthLabel) . '-' . date('Ymd-His') . '.xls';
+
+        return response()
+            ->view('exports.gst_excel', compact(
+                'orders', 'monthlySummaries', 'monthLabel', 'gstRate', 'company', 'selectedMonth'
+            ))
+            ->header('Content-Type', 'application/vnd.ms-excel')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 
     public function report()
