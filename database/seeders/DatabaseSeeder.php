@@ -31,6 +31,16 @@ class DatabaseSeeder extends Seeder
         // would otherwise be silently discarded on a fresh database.
         User::unguarded(function () {
             User::firstOrCreate(
+                ['email' => 'admin@aadhyasilks.in'],
+                [
+                    'name' => 'Admin',
+                    'password' => Hash::make('password'),
+                    'email_verified_at' => now(),
+                    'remember_token' => Str::random(10),
+                ]
+            );
+
+            User::firstOrCreate(
                 ['email' => 'test@example.com'],
                 [
                     'name' => 'Test User',
